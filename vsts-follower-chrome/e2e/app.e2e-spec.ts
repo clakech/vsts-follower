@@ -9,6 +9,6 @@ describe('vsts-follower-chrome App', () => {
 
   it('should display message saying app works', () => {
     page.navigateTo();
-    expect(page.getParagraphText()).toEqual('alm works!');
+    expect(page.getParagraphText()).toEqual('follow works!');
   });
 });

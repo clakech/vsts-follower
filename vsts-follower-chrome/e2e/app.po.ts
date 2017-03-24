@@ -6,6 +6,6 @@ export class VstsFollowerChromePage {
   }
 
   getParagraphText() {
-    return element(by.css('alm-root h1')).getText();
+    return element(by.css('follow-root h1')).getText();
   }
 }
