@@ -1,5 +1,15 @@
-<h1>
-  {{title}}
-</h1>
-<md-spinner></md-spinner>
-<router-outlet></router-outlet>
+<md-sidenav-container>
+  <md-toolbar color="primary">
+    {{title}}
+    <span class="flex"></span>
+    <follow-vsts-profile></follow-vsts-profile>
+  </md-toolbar>
+  <md-progress-bar mode="indeterminate"></md-progress-bar>
+
+  <div class="app-content">
+    <md-card>
+      <router-outlet></router-outlet>
+    </md-card>
+  </div>
+
+</md-sidenav-container>
