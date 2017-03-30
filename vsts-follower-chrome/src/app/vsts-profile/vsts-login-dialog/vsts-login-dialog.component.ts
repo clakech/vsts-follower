@@ -8,7 +8,8 @@ import {MdDialogRef} from '@angular/material';
 })
 export class VstsLoginDialogComponent implements OnInit {
 
-  public login: string = "User";
+  public url: string;
+  public login: string;
   public password: string;
 
   constructor(public dialogRef: MdDialogRef<VstsLoginDialogComponent>) { }

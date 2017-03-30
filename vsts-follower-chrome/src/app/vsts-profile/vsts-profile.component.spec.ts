@@ -1,9 +1,19 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
 
 import { VstsProfileComponent } from './vsts-profile.component';
 import { VstsLoginDialogComponent } from './vsts-login-dialog/vsts-login-dialog.component';
-import { MaterialModule } from '@angular/material';
+import { MaterialModule, MdDialog } from '@angular/material';
 import 'hammerjs';
+import {NgModule} from '@angular/core';
+
+@NgModule({
+  declarations: [VstsLoginDialogComponent],
+  imports: [MaterialModule, FormsModule],
+  entryComponents: [VstsLoginDialogComponent],
+  exports: [VstsLoginDialogComponent],
+})
+class TestModule { }
 
 describe('VstsProfileComponent', () => {
   let component: VstsProfileComponent;
@@ -11,8 +21,8 @@ describe('VstsProfileComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ VstsProfileComponent, VstsLoginDialogComponent ],
-      imports: [MaterialModule]
+      declarations: [ VstsProfileComponent ],
+      imports: [MaterialModule, FormsModule, TestModule]
     })
     .compileComponents();
   }));
@@ -25,5 +35,13 @@ describe('VstsProfileComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should openDialog', () => {
+    expect(component).toBeTruthy();
+    expect(component.openDialog()).not.toBeNull();
+    /*expect(component.currentDomain.login).not.toBeNull();
+    expect(component.currentDomain.token).not.toBeNull();
+    expect(component.currentDomain.url).not.toBeNull();*/
   });
 });

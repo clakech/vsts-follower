@@ -10,6 +10,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { VstsProfileComponent } from './vsts-profile/vsts-profile.component';
 import { VstsLoginDialogComponent } from './vsts-profile/vsts-login-dialog/vsts-login-dialog.component';
+import { VstsProfileService } from './vsts-profile/vsts-profile.service';
 
 @NgModule({
   declarations: [
@@ -24,8 +25,12 @@ import { VstsLoginDialogComponent } from './vsts-profile/vsts-login-dialog/vsts-
     AppRoutingModule,
     MaterialModule
   ],
-  providers: [],
-  bootstrap: [AppComponent],
+  providers: [
+    VstsProfileService
+  ],
+  bootstrap: [
+    AppComponent
+  ],
   entryComponents: [
     VstsLoginDialogComponent
   ]
