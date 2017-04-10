@@ -1,5 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { VstsProfileComponent } from './vsts-profile.component';
 import { VstsLoginDialogComponent } from './vsts-login-dialog/vsts-login-dialog.component';
@@ -9,7 +10,7 @@ import {NgModule} from '@angular/core';
 
 @NgModule({
   declarations: [VstsLoginDialogComponent],
-  imports: [MaterialModule, FormsModule],
+  imports: [MaterialModule, FormsModule, BrowserAnimationsModule],
   entryComponents: [VstsLoginDialogComponent],
   exports: [VstsLoginDialogComponent],
 })
