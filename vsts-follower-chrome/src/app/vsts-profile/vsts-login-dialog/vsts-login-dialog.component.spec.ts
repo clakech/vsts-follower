@@ -6,6 +6,7 @@ import 'hammerjs';
 
 
 import { VstsLoginDialogComponent } from './vsts-login-dialog.component';
+import { VstsProfileService } from '../vsts-profile.service';
 import {NgModule} from '@angular/core';
 
 @NgModule({
@@ -20,9 +21,32 @@ describe('VstsLoginDialogComponent', () => {
   let component: VstsLoginDialogComponent;
   let dialog: MdDialog;
 
+  const SERVICE_OBJECT = {
+      url: 'https://axafrance.visualstudio.com',
+      login: 'user.name@axa.fr',
+      token: 's1234567'
+    };
+
+  /**
+   * Mock of VstsProfileService
+   *
+   * @class MockService
+   */
+  class MockService {
+
+    public getVstsProfile() {
+      return SERVICE_OBJECT;
+    }
+
+    public setVstsProfile(data: any) {
+      return true;
+    }
+  }
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [TestModule, MdDialogModule]
+      imports: [TestModule, MdDialogModule],
+      providers: [{provide: VstsProfileService, useClass: MockService}]
     })
     .compileComponents();
   }));
@@ -36,5 +60,17 @@ describe('VstsLoginDialogComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('Should load data on start', () => {
+    const expected = {
+      url: 'https://axafrance.visualstudio.com',
+      login: 'user.name@axa.fr',
+      token: 's1234567'
+    };
+    component.ngOnInit();
+    expect(component.url).toBe(expected.url);
+    expect(component.login).toBe(expected.login);
+    expect(component.password).toBe(expected.token);
   });
 });
