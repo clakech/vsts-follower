@@ -54,6 +54,7 @@ describe('VstsLoginDialogComponent', () => {
   beforeEach(() => {
     dialog = TestBed.get(MdDialog);
     const dialogRef = dialog.open(VstsLoginDialogComponent);
+    spyOn(dialogRef, 'close');
 
     component = dialogRef.componentInstance;
   });
@@ -63,14 +64,38 @@ describe('VstsLoginDialogComponent', () => {
   });
 
   it('Should load data on start', () => {
+    const service = TestBed.get(VstsProfileService);
+    spyOn(service, 'getVstsProfile').and.callThrough();
     const expected = {
       url: 'https://axafrance.visualstudio.com',
       login: 'user.name@axa.fr',
       token: 's1234567'
     };
     component.ngOnInit();
+
     expect(component.url).toBe(expected.url);
     expect(component.login).toBe(expected.login);
     expect(component.password).toBe(expected.token);
+    expect(service.getVstsProfile).toHaveBeenCalled();
   });
+
+  it('Should call save when launch validation action', () => {
+    const service = TestBed.get(VstsProfileService);
+    spyOn(service, 'setVstsProfile');
+    const expected = {
+      url: 'https://company.visualstudio.com',
+      login: 'uname@company.fr',
+      token: 'pass'
+    };
+    component.ngOnInit();
+    component.url = expected.url;
+    component.login = expected.login;
+    component.password = expected.token;
+
+    component.saveData();
+
+    expect(service.setVstsProfile).toHaveBeenCalled();
+    expect(component.dialogRef.close).toHaveBeenCalled();
+  });
+
 });

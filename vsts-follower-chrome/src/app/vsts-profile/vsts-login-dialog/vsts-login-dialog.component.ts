@@ -13,7 +13,7 @@ export class VstsLoginDialogComponent implements OnInit {
   public login: string;
   public password: string;
 
-  constructor(public dialogRef: MdDialogRef<VstsLoginDialogComponent>,public service: VstsProfileService) { }
+  constructor(public dialogRef: MdDialogRef<VstsLoginDialogComponent>, public service: VstsProfileService) { }
 
   ngOnInit() {
     const result = this.service.getVstsProfile();
@@ -22,6 +22,17 @@ export class VstsLoginDialogComponent implements OnInit {
       this.login = result.login;
       this.password = result.token;
     }
+
+  }
+
+  saveData() {
+    const toSet = {
+      url: this.url,
+      login: this.login,
+      token: this.password
+    };
+    this.service.setVstsProfile(toSet);
+    this.dialogRef.close();
   }
 
 }
