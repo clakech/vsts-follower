@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { VstsProfileComponent } from './vsts-profile.component';
+import { VstsProfileService } from './vsts-profile.service';
 import { VstsLoginDialogComponent } from './vsts-login-dialog/vsts-login-dialog.component';
 import { MaterialModule, MdDialog } from '@angular/material';
 import 'hammerjs';
@@ -13,6 +14,7 @@ import {NgModule} from '@angular/core';
   imports: [MaterialModule, FormsModule, BrowserAnimationsModule],
   entryComponents: [VstsLoginDialogComponent],
   exports: [VstsLoginDialogComponent],
+  providers: [VstsProfileService]
 })
 class TestModule { }
 
