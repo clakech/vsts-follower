@@ -60,4 +60,7 @@ describe('VstsProfileService', () => {
     expect(currentDomain.url).toBe(expected.url);
   }));
 
+  it('should set data to localStorage', inject([VstsProfileService], (service: VstsProfileService) => {
+  }));
+
 });

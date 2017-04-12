@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { } from './vsts-credentials';;
+import { VstsCredentials } from 'app/vsts-credentials';
 
 @Injectable()
 export class VstsProfileService {
@@ -7,13 +9,13 @@ export class VstsProfileService {
 
   private config;
 
-  public getVstsProfile() {
+  public getVstsProfile(): VstsCredentials {
     const dataStr = localStorage.getItem(this.storageName);
     this.config =  JSON.parse(dataStr);
     return this.config;
   }
 
-  public setVstsProfile(data: any) {
+  public setVstsProfile(data: VstsCredentials) {
     localStorage.setItem(this.storageName, JSON.stringify(data));
     return (this.getVstsProfile() != null);
   }
