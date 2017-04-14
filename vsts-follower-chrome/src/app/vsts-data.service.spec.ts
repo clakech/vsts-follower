@@ -48,7 +48,7 @@ class MockHttp {
     });
   }
 }
-/*
+
 describe('VstsDataService', () => {
 
   beforeEach(() => {
@@ -64,7 +64,7 @@ describe('VstsDataService', () => {
         ]
     });
   });
-
+/*
   it('should get projects list', inject([VstsDataService], (service: VstsDataService, http: Http) => {
     expect(service).toBeTruthy();
     expect(service.profileService).toBeTruthy();
@@ -96,6 +96,6 @@ describe('VstsDataService', () => {
     });
 
   }));
+  */
 
 });
-*/
