@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {MdDialogRef} from '@angular/material';
 import { VstsProfileService } from '../vsts-profile.service';
-import {} from '../vsts-credentials';
+import { VstsCredentials } from '../../vsts-credentials';
 
 @Component({
   selector: 'follow-vsts-login-dialog',
@@ -27,11 +27,10 @@ export class VstsLoginDialogComponent implements OnInit {
   }
 
   saveData() {
-    const toSet = {
-      url: this.url,
-      login: this.login,
-      token: this.password
-    };
+    const toSet: VstsCredentials = new VstsCredentials();
+    toSet.url = this.url;
+    toSet.login = this.login;
+    toSet.token = this.password;
     this.service.setVstsProfile(toSet);
     this.dialogRef.close();
   }

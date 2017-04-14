@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { } from './vsts-credentials';;
+import { } from './vsts-credentials';
 import { VstsCredentials } from 'app/vsts-credentials';
 
 @Injectable()

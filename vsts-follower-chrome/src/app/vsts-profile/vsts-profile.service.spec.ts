@@ -1,5 +1,5 @@
 import { TestBed, inject } from '@angular/core/testing';
-
+import { VstsCredentials } from '../vsts-credentials';
 import { VstsProfileService } from './vsts-profile.service';
 
 describe('VstsProfileService', () => {
@@ -44,11 +44,10 @@ describe('VstsProfileService', () => {
     };
     localStorage.setItem(service.storageName, JSON.stringify(originalData));
 
-    const expected = {
-      url: 'https://taichin.visualstudio.com',
-      login: 'user.name@outlook.com',
-      token: 'mdppowa'
-    };
+    const expected: VstsCredentials = new VstsCredentials();
+    expected.url = 'https://taichin.visualstudio.com';
+    expected.login = 'user.name@outlook.com';
+    expected.token = 'mdppowa';
 
     service.setVstsProfile(expected);
 
