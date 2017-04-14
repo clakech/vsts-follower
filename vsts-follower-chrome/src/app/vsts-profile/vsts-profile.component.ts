@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+
 import {MdDialog} from '@angular/material';
 import {VstsLoginDialogComponent} from './vsts-login-dialog/vsts-login-dialog.component';
 
@@ -16,7 +17,7 @@ export class VstsProfileComponent implements OnInit {
   openDialog() {
     const dialogRef = this.dialog.open(VstsLoginDialogComponent);
     dialogRef.afterClosed().subscribe(result => {
-      this.currentDomain = result;
+      //TODO: Variabilize button content !
     });
   }
 
