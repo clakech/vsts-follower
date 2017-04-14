@@ -1,16 +1,16 @@
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
-
-import { ConnectionBackend, Http, HttpModule, JsonpModule, RequestOptionsArgs, Response, ResponseOptions } from '@angular/http';
-import { MockBackend, MockConnection } from '@angular/http/testing';
-import { TestBed, inject } from '@angular/core/testing';
-import {async, fakeAsync, tick} from '@angular/core/testing';
-
-import {NgModule} from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+
+import { Injectable, ReflectiveInjector } from '@angular/core';
+import { async, fakeAsync, tick } from '@angular/core/testing';
+import { BaseRequestOptions, ConnectionBackend, Http, RequestOptions } from '@angular/http';
+import { Response, ResponseOptions } from '@angular/http';
+import { MockBackend, MockConnection } from '@angular/http/testing';
 import { VstsCredentials } from './vsts-credentials';
 import { VstsDataService } from './vsts-data.service';
 import { VstsProfileService } from './vsts-profile/vsts-profile.service';
+import { VstsProject, VstsProjectList } from './vsts-project';
 
 /**
  * Mock of VstsProfileService
@@ -32,70 +32,46 @@ class MockService {
   }
 }
 
-
-class MockHttp {
-  public get(url: string, options?: RequestOptionsArgs): Observable<Response> {
-    return Observable.create((observer: any) => {
-      observer.onNext(new ResponseOptions({
-        body: JSON.stringify({ count: 10, value: [] })
-      }));
-      observer.onCompleted();
-
-      // Any cleanup logic might go here
-      return function () {
-        console.log('disposed');
-      }
-    });
-  }
-}
-
 describe('VstsDataService', () => {
 
   beforeEach(() => {
-    TestBed.configureTestingModule({
-      imports: [    
-        HttpModule,
-        JsonpModule
-      ],
-      providers: [
-        VstsDataService,
-        {provide: VstsProfileService, useClass: MockService},
-        {provide: Http, useClass: MockHttp}
-        ]
-    });
+    this.injector = ReflectiveInjector.resolveAndCreate([
+      { provide: ConnectionBackend, useClass: MockBackend },
+      { provide: RequestOptions, useClass: BaseRequestOptions },
+      Http,
+      VstsDataService,
+      { provide: VstsProfileService, useClass: MockService }
+    ]);
+    this.vstsDataService = this.injector.get(VstsDataService);
+    this.backend = this.injector.get(ConnectionBackend) as MockBackend;
+    this.backend.connections.subscribe((connection: any) => this.lastConnection = connection);
   });
-/*
-  it('should get projects list', inject([VstsDataService], (service: VstsDataService, http: Http) => {
-    expect(service).toBeTruthy();
-    expect(service.profileService).toBeTruthy();
-    spyOn(http, "get").and.callFake(() => {
-      return Observable.create((observer: any) => {
-      observer.onNext(new ResponseOptions({
-        body: JSON.stringify({ count: 10, value: [] })
-      }));
-      observer.onCompleted();
 
-      // Any cleanup logic might go here
-      return function () {
-        console.log('disposed');
-      }
-    });
-    });
-    service.getProjects().subscribe(list => {
-      expect(list.count).toBe(10);
-    });
+  it('should get projects list', () => {
+    let result: VstsProjectList;
+    this.vstsDataService.getProjects().subscribe(
+      value => result = value
+    );
 
-  }));
 
-  it('should return null if exception on get project list', inject([VstsDataService], (service: VstsDataService, http: Http) => {
-    expect(service).toBeTruthy();
-    expect(service.profileService).toBeTruthy();
+    this.lastConnection.mockRespond(new Response(new ResponseOptions({
+      body: JSON.stringify({ count: 10, value: [] })
+    })));
 
-    service.getProjects().subscribe(list => {
-      expect(list).toBeNull();
-    });
+    expect(result.count).toEqual(10, 'should contain given amount of projects');
+  });
 
-  }));
-  */
+  it('should get projects list return empty if error', () => {
+    let result: VstsProjectList;
+    this.vstsDataService.getProjects().subscribe(
+      value => result = value
+    );
 
+    this.lastConnection.mockRespond(new Response(new ResponseOptions({
+      status: 404,
+      statusText: 'URL not found'
+    })));
+
+    expect(result.count).toEqual(0, 'should contain no project');
+  });
 });
