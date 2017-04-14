@@ -1,16 +1,17 @@
-import { BrowserModule } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { HttpModule, JsonpModule } from '@angular/http';
-
-import { MaterialModule } from '@angular/material';
 import 'hammerjs';
 
-import { AppRoutingModule } from './app-routing.module';
+import { HttpModule, JsonpModule } from '@angular/http';
+
 import { AppComponent } from './app.component';
-import { VstsProfileComponent } from './vsts-profile/vsts-profile.component';
+import { AppRoutingModule } from './app-routing.module';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+import { MaterialModule } from '@angular/material';
+import { NgModule } from '@angular/core';
+import { VstsDataService } from './vsts-data.service';
 import { VstsLoginDialogComponent } from './vsts-profile/vsts-login-dialog/vsts-login-dialog.component';
+import { VstsProfileComponent } from './vsts-profile/vsts-profile.component';
 import { VstsProfileService } from './vsts-profile/vsts-profile.service';
 
 @NgModule({
@@ -29,7 +30,8 @@ import { VstsProfileService } from './vsts-profile/vsts-profile.service';
     BrowserAnimationsModule
   ],
   providers: [
-    VstsProfileService
+    VstsProfileService,
+    VstsDataService
   ],
   bootstrap: [
     AppComponent

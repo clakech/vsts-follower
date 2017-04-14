@@ -1,4 +1,5 @@
 import { TestBed, inject } from '@angular/core/testing';
+
 import { VstsCredentials } from '../vsts-credentials';
 import { VstsProfileService } from './vsts-profile.service';
 
@@ -58,8 +59,4 @@ describe('VstsProfileService', () => {
     expect(currentDomain.token).toBe(expected.token);
     expect(currentDomain.url).toBe(expected.url);
   }));
-
-  it('should set data to localStorage', inject([VstsProfileService], (service: VstsProfileService) => {
-  }));
-
 });
