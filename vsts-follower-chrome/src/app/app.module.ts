@@ -9,15 +9,11 @@ import 'hammerjs';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { VstsProfileComponent } from './vsts-profile/vsts-profile.component';
-import { VstsLoginDialogComponent } from './vsts-profile/vsts-login-dialog/vsts-login-dialog.component';
-import { VstsProfileService } from './vsts-profile/vsts-profile.service';
+import { ProfileModule } from './profile/profile.module';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    VstsProfileComponent,
-    VstsLoginDialogComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
@@ -26,16 +22,11 @@ import { VstsProfileService } from './vsts-profile/vsts-profile.service';
     JsonpModule,
     AppRoutingModule,
     MaterialModule,
-    BrowserAnimationsModule
-  ],
-  providers: [
-    VstsProfileService
+    BrowserAnimationsModule,
+    ProfileModule
   ],
   bootstrap: [
     AppComponent
-  ],
-  entryComponents: [
-    VstsLoginDialogComponent
   ]
 })
 export class AppModule { }

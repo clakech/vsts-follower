@@ -5,8 +5,7 @@ import { MaterialModule } from '@angular/material';
 import 'hammerjs';
 
 import { AppComponent } from './app.component';
-import { VstsProfileComponent } from './vsts-profile/vsts-profile.component';
-import { VstsLoginDialogComponent } from './vsts-profile/vsts-login-dialog/vsts-login-dialog.component';
+import { ProfileModule } from './profile/profile.module';
 
 describe('AppComponent', () => {
   const expectedTitle = 'Chrome Connector to ALM';
@@ -15,12 +14,11 @@ describe('AppComponent', () => {
       imports: [
         RouterTestingModule,
         MaterialModule,
-        FormsModule
+        FormsModule,
+        ProfileModule
       ],
       declarations: [
-        AppComponent,
-        VstsProfileComponent,
-        VstsLoginDialogComponent
+        AppComponent
       ],
     }).compileComponents();
   }));

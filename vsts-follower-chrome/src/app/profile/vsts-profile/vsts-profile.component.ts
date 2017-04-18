@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
 import {MdDialog} from '@angular/material';
-import {VstsLoginDialogComponent} from './vsts-login-dialog/vsts-login-dialog.component';
+import {LoginDialogComponent} from '../login-dialog/login-dialog.component';
 
 @Component({
   selector: 'follow-vsts-profile',
@@ -15,7 +15,7 @@ export class VstsProfileComponent implements OnInit {
   constructor(public dialog: MdDialog) {}
 
   openDialog() {
-    const dialogRef = this.dialog.open(VstsLoginDialogComponent);
+    const dialogRef = this.dialog.open(LoginDialogComponent, { data: {profile: "vsts"} });
     dialogRef.afterClosed().subscribe(result => {
       //TODO: Variabilize button content !
     });

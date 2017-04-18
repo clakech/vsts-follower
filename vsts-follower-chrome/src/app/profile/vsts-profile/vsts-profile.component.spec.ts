@@ -3,18 +3,18 @@ import { FormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { VstsProfileComponent } from './vsts-profile.component';
-import { VstsProfileService } from './vsts-profile.service';
-import { VstsLoginDialogComponent } from './vsts-login-dialog/vsts-login-dialog.component';
+import { ProfileService } from '../profile.service';
+import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
 import { MaterialModule, MdDialog } from '@angular/material';
 import 'hammerjs';
 import {NgModule} from '@angular/core';
 
 @NgModule({
-  declarations: [VstsLoginDialogComponent],
+  declarations: [LoginDialogComponent],
   imports: [MaterialModule, FormsModule, BrowserAnimationsModule],
-  entryComponents: [VstsLoginDialogComponent],
-  exports: [VstsLoginDialogComponent],
-  providers: [VstsProfileService]
+  entryComponents: [LoginDialogComponent],
+  exports: [LoginDialogComponent],
+  providers: [ProfileService]
 })
 class TestModule { }
 

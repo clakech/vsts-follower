@@ -5,20 +5,20 @@ import { MaterialModule, MdDialogModule, MdDialog } from '@angular/material';
 import 'hammerjs';
 
 
-import { VstsLoginDialogComponent } from './vsts-login-dialog.component';
-import { VstsProfileService } from '../vsts-profile.service';
+import { LoginDialogComponent } from './login-dialog.component';
+import { ProfileService } from '../profile.service';
 import {NgModule} from '@angular/core';
 
 @NgModule({
-  declarations: [VstsLoginDialogComponent],
+  declarations: [LoginDialogComponent],
   imports: [MaterialModule, FormsModule, BrowserAnimationsModule],
-  entryComponents: [VstsLoginDialogComponent],
-  exports: [VstsLoginDialogComponent],
+  entryComponents: [LoginDialogComponent],
+  exports: [LoginDialogComponent],
 })
 class TestModule { }
 
 describe('VstsLoginDialogComponent', () => {
-  let component: VstsLoginDialogComponent;
+  let component: LoginDialogComponent;
   let dialog: MdDialog;
 
   const SERVICE_OBJECT = {
@@ -46,14 +46,14 @@ describe('VstsLoginDialogComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [TestModule, MdDialogModule],
-      providers: [{provide: VstsProfileService, useClass: MockService}]
+      providers: [{provide: ProfileService, useClass: MockService}]
     })
     .compileComponents();
   }));
 
   beforeEach(() => {
     dialog = TestBed.get(MdDialog);
-    const dialogRef = dialog.open(VstsLoginDialogComponent);
+    const dialogRef = dialog.open(LoginDialogComponent);
     spyOn(dialogRef, 'close');
 
     component = dialogRef.componentInstance;
@@ -64,7 +64,7 @@ describe('VstsLoginDialogComponent', () => {
   });
 
   it('Should load data on start', () => {
-    const service = TestBed.get(VstsProfileService);
+    const service = TestBed.get(ProfileService);
     spyOn(service, 'getVstsProfile').and.callThrough();
     const expected = {
       url: 'https://axafrance.visualstudio.com',
@@ -80,7 +80,7 @@ describe('VstsLoginDialogComponent', () => {
   });
 
   it('Should call save when launch validation action', () => {
-    const service = TestBed.get(VstsProfileService);
+    const service = TestBed.get(ProfileService);
     spyOn(service, 'setVstsProfile');
     const expected = {
       url: 'https://company.visualstudio.com',
