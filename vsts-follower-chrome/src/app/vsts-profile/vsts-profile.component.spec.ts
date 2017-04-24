@@ -36,15 +36,20 @@ describe('VstsProfileComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should create', () => {
+  it('should create and have default label', () => {
     expect(component).toBeTruthy();
+    expect(component.buttonLabel).toBe('Connect VSTS');
   });
+
+  it('should render default button label', async(() => {
+    const fixture = TestBed.createComponent(VstsProfileComponent);
+    fixture.detectChanges();
+    const compiled = fixture.debugElement.nativeElement;
+    expect(compiled.querySelector('button').textContent).toContain('Connect VSTS');
+  }));
 
   it('should openDialog', () => {
     expect(component).toBeTruthy();
     expect(component.openDialog()).not.toBeNull();
-    /*expect(component.currentDomain.login).not.toBeNull();
-    expect(component.currentDomain.token).not.toBeNull();
-    expect(component.currentDomain.url).not.toBeNull();*/
   });
 });
