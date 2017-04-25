@@ -17,13 +17,16 @@ export class VstsDataService {
   private profile: VstsCredentials;
 
   constructor(public profileService: VstsProfileService, private http: Http) {
-    this.profile = this.profileService.getVstsProfile();
-    let basic: string = 'Basic ' + this.profile.getBasic();
-    let headers = new Headers({ 'Authorization': basic });
-    this.requestOptions = new RequestOptions({ headers: headers });
+
   }
 
   getProjects(): Observable<VstsProjectList> {
+    this.profile = this.profileService.getVstsProfile();
+    if (this.profile) {
+      let basic: string = 'Basic ' + btoa(this.profile.login.toLowerCase() + ':' + this.profile.token);
+      let headers = new Headers({ 'Authorization': basic });
+      this.requestOptions = new RequestOptions({ headers: headers });
+    }
     return this.http.get(this.profile.url + this.projectListSuffix, this.requestOptions)
       .map((resp) => {
         return new VstsProjectList(resp.text());

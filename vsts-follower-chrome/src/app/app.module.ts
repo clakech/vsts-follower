@@ -13,6 +13,8 @@ import { VstsDataService } from './vsts-data.service';
 import { VstsLoginDialogComponent } from './vsts-profile/vsts-login-dialog/vsts-login-dialog.component';
 import { VstsProfileComponent } from './vsts-profile/vsts-profile.component';
 import { VstsProfileService } from './vsts-profile/vsts-profile.service';
+import { VstsCredentials } from './vsts-credentials';
+import { VstsProject, VstsProjectList } from './vsts-project';
 
 @NgModule({
   declarations: [
