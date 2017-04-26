@@ -18,7 +18,7 @@ export class ProfileService {
     return (this.getProfile(profile) != null);
   }
 
-  private getStorageName(profile) {
+  public getStorageName(profile) {
     return `${profile}Profile`;
   }
 

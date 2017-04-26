@@ -10,7 +10,7 @@ import {LoginDialogComponent} from '../login-dialog/login-dialog.component';
 })
 export class VstsProfileComponent implements OnInit {
 
-  public currentDomain: any;
+  public buttonLabel: string = 'Connect VSTS';
 
   constructor(public dialog: MdDialog) {}
 

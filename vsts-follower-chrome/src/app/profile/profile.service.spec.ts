@@ -14,7 +14,7 @@ describe('VstsProfileService', () => {
   }));
 
   it('should return null if no data', inject([ProfileService], (service: ProfileService) => {
-    localStorage.removeItem(service.storageName);
+    localStorage.removeItem(service.getStorageName(""));
 
     expect(service.getProfile()).toBeNull();
   }));
@@ -25,7 +25,7 @@ describe('VstsProfileService', () => {
       login: 'user.name@axa.fr',
       token: 's1234567'
     };
-    localStorage.setItem(service.storageName, JSON.stringify(expected));
+    localStorage.setItem(service.getStorageName(""), JSON.stringify(expected));
 
     const currentDomain = service.getProfile();
 
@@ -42,14 +42,14 @@ describe('VstsProfileService', () => {
       login: 'user.name@axa.fr',
       token: 's1234567'
     };
-    localStorage.setItem(service.storageName, JSON.stringify(originalData));
+    localStorage.setItem(service.getStorageName(""), JSON.stringify(originalData));
 
     const expected: ProfileCredentials = new ProfileCredentials();
     expected.url = 'https://taichin.visualstudio.com';
     expected.login = 'user.name@outlook.com';
     expected.password = 'mdppowa';
 
-    service.setProfile(expected);
+    service.setProfile("", expected);
 
     const currentDomain = service.getProfile();
 
@@ -58,8 +58,4 @@ describe('VstsProfileService', () => {
     expect(currentDomain.password).toBe(expected.password);
     expect(currentDomain.url).toBe(expected.url);
   }));
-
-  it('should set data to localStorage', inject([ProfileService], (service: ProfileService) => {
-  }));
-
 });
