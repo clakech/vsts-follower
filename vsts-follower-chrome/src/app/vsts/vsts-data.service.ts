@@ -6,18 +6,18 @@ import { VstsProject, VstsProjectList } from './vsts-project';
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
-import { VstsCredentials } from './vsts-credentials';
-import { VstsProfileService } from './vsts-profile/vsts-profile.service';
+import { ProfileCredentials } from '../profile/profile-credentials';
+import { ProfileService } from '../profile/profile.service';
 
 @Injectable()
 export class VstsDataService {
 
   private projectListSuffix: string = "/defaultcollection/_apis/projects?api-version=2.0";
   private requestOptions: RequestOptions;
-  private profile: VstsCredentials;
+  private profile: ProfileCredentials;
 
-  constructor(public profileService: VstsProfileService, private http: Http) {
-    this.profile = this.profileService.getVstsProfile();
+  constructor(public profileService: ProfileService, private http: Http) {
+    this.profile = this.profileService.getProfile("vsts");
     let basic: string = 'Basic ' + this.profile.getBasic();
     let headers = new Headers({ 'Authorization': basic });
     this.requestOptions = new RequestOptions({ headers: headers });

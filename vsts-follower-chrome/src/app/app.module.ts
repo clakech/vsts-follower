@@ -1,24 +1,20 @@
 import 'hammerjs';
 
 import { HttpModule, JsonpModule } from '@angular/http';
-
-import { AppComponent } from './app.component';
-import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '@angular/material';
 import { NgModule } from '@angular/core';
-import { VstsDataService } from './vsts-data.service';
-import { VstsLoginDialogComponent } from './vsts-profile/vsts-login-dialog/vsts-login-dialog.component';
-import { VstsProfileComponent } from './vsts-profile/vsts-profile.component';
-import { VstsProfileService } from './vsts-profile/vsts-profile.service';
+
+import { AppComponent } from './app.component';
+import { AppRoutingModule } from './app-routing.module';
+import { ProfileModule } from './profile/profile.module';
+import { VstsModule } from './vsts/vsts.module';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    VstsProfileComponent,
-    VstsLoginDialogComponent
+    AppComponent
   ],
   imports: [
     BrowserModule,
@@ -27,17 +23,12 @@ import { VstsProfileService } from './vsts-profile/vsts-profile.service';
     JsonpModule,
     AppRoutingModule,
     MaterialModule,
-    BrowserAnimationsModule
-  ],
-  providers: [
-    VstsProfileService,
-    VstsDataService
+    BrowserAnimationsModule,
+    ProfileModule,
+    VstsModule
   ],
   bootstrap: [
     AppComponent
-  ],
-  entryComponents: [
-    VstsLoginDialogComponent
   ]
 })
 export class AppModule { }
