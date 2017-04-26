@@ -2,7 +2,7 @@ import { TestBed, inject } from '@angular/core/testing';
 import { ProfileCredentials } from './profile-credentials';
 import { ProfileService } from './profile.service';
 
-describe('VstsProfileService', () => {
+describe('ProfileService', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [ProfileService]
@@ -23,7 +23,7 @@ describe('VstsProfileService', () => {
     const expected = {
       url: 'https://axafrance.visualstudio.com',
       login: 'user.name@axa.fr',
-      token: 's1234567'
+      password: 's1234567'
     };
     localStorage.setItem(service.getStorageName(""), JSON.stringify(expected));
 
@@ -31,7 +31,7 @@ describe('VstsProfileService', () => {
 
     expect(currentDomain).not.toBeNull();
     expect(currentDomain.login).toBe(expected.login);
-    expect(currentDomain.password).toBe(expected.token);
+    expect(currentDomain.password).toBe(expected.password);
     expect(currentDomain.url).toBe(expected.url);
   }));
 

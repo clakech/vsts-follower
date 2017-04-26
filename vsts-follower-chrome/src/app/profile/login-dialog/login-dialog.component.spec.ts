@@ -1,23 +1,22 @@
-import { async, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
+import { MaterialModule, MdDialogModule, MdDialog, MdDialogRef, MD_DIALOG_DATA } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MaterialModule, MdDialogModule, MdDialog } from '@angular/material';
-import 'hammerjs';
-
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import {NgModule} from '@angular/core';
 
 import { LoginDialogComponent } from './login-dialog.component';
 import { ProfileService } from '../profile.service';
-import {NgModule} from '@angular/core';
 
 @NgModule({
   declarations: [LoginDialogComponent],
   imports: [MaterialModule, FormsModule, BrowserAnimationsModule],
+  providers: [ProfileService],
   entryComponents: [LoginDialogComponent],
   exports: [LoginDialogComponent],
 })
 class TestModule { }
 
-describe('VstsLoginDialogComponent', () => {
+describe('LoginDialogComponent', () => {
   let component: LoginDialogComponent;
   let dialog: MdDialog;
 
@@ -27,75 +26,69 @@ describe('VstsLoginDialogComponent', () => {
       token: 's1234567'
     };
 
-  /**
-   * Mock of VstsProfileService
-   *
-   * @class MockService
-   */
-  class MockService {
+    describe("angular test injection", () => {
 
-    public getVstsProfile() {
-      return SERVICE_OBJECT;
-    }
+      beforeEach(async(() => {
+        TestBed.configureTestingModule({
+          imports: [MaterialModule, FormsModule, TestModule],
 
-    public setVstsProfile(data: any) {
-      return true;
-    }
-  }
+        })
+        .compileComponents();
+      }));
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      imports: [TestModule, MdDialogModule],
-      providers: [{provide: ProfileService, useClass: MockService}]
-    })
-    .compileComponents();
-  }));
+      beforeEach(() => {
+        dialog = TestBed.get(MdDialog);
+        const dialogRef = dialog.open(LoginDialogComponent);
+        spyOn(dialogRef, 'close');
 
-  beforeEach(() => {
-    dialog = TestBed.get(MdDialog);
-    const dialogRef = dialog.open(LoginDialogComponent);
-    spyOn(dialogRef, 'close');
+        component = dialogRef.componentInstance;
+      });
 
-    component = dialogRef.componentInstance;
-  });
+      it('should create and have default label', () => {
+        expect(component).toBeTruthy();
+      });
+    });
+    describe("unit testing", () => {
+      let profileService: ProfileService;
+      let dialogRef: MdDialogRef<LoginDialogComponent>;
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+      beforeEach(() => {
+        dialogRef = jasmine.createSpyObj("MdDialogRef", ['close']);
+        profileService = jasmine.createSpyObj("ProfileService", ['getProfile', 'setProfile']);
+        component = new LoginDialogComponent(dialogRef, profileService, {});
+      });
 
-  it('Should load data on start', () => {
-    const service = TestBed.get(ProfileService);
-    spyOn(service, 'getVstsProfile').and.callThrough();
-    const expected = {
-      url: 'https://axafrance.visualstudio.com',
-      login: 'user.name@axa.fr',
-      token: 's1234567'
-    };
-    component.ngOnInit();
+      it('Should load data on start', () => {
+        const expected = {
+          url: 'https://axafrance.visualstudio.com',
+          login: 'user.name@axa.fr',
+          password: 's1234567'
+        };
+        (<jasmine.Spy> profileService.getProfile).and.callFake(() => expected);
+        component.ngOnInit();
 
-    expect(component.url).toBe(expected.url);
-    expect(component.login).toBe(expected.login);
-    expect(component.password).toBe(expected.token);
-    expect(service.getVstsProfile).toHaveBeenCalled();
-  });
+        expect(component.url).toBe(expected.url);
+        expect(component.login).toBe(expected.login);
+        expect(component.password).toBe(expected.password);
+        expect(profileService.getProfile).toHaveBeenCalled();
+      });
 
-  it('Should call save when launch validation action', () => {
-    const service = TestBed.get(ProfileService);
-    spyOn(service, 'setVstsProfile');
-    const expected = {
-      url: 'https://company.visualstudio.com',
-      login: 'uname@company.fr',
-      token: 'pass'
-    };
-    component.ngOnInit();
-    component.url = expected.url;
-    component.login = expected.login;
-    component.password = expected.token;
+      it('Should call save when launch validation action', () => {
+        const expected = {
+          url: 'https://company.visualstudio.com',
+          login: 'uname@company.fr',
+          password: 'pass'
+        };
+        (<jasmine.Spy> profileService.getProfile).and.callFake(() => expected);
+        component.ngOnInit();
+        component.url = expected.url;
+        component.login = expected.login;
+        component.password = expected.password;
 
-    component.saveData();
+        component.saveData();
 
-    expect(service.setVstsProfile).toHaveBeenCalled();
-    expect(component.dialogRef.close).toHaveBeenCalled();
-  });
-
+        expect(profileService.setProfile).toHaveBeenCalled();
+        expect(dialogRef.close).toHaveBeenCalled();
+      });
+    });
 });

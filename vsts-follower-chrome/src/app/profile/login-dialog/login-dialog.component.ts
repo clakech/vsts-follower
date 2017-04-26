@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject } from '@angular/core';
+import { Component, OnInit, Inject, Optional } from '@angular/core';
 import {MdDialogRef, MD_DIALOG_DATA} from '@angular/material';
 import { ProfileService, ProfileType } from '../profile.service';
 import { ProfileCredentials } from '../profile-credentials';
@@ -14,7 +14,7 @@ export class LoginDialogComponent implements OnInit {
   public login: string;
   public password: string;
 
-  constructor(public dialogRef: MdDialogRef<LoginDialogComponent>, public service: ProfileService, @Inject(MD_DIALOG_DATA) public data: any) { }
+  constructor(public dialogRef: MdDialogRef<LoginDialogComponent>, public service: ProfileService, @Optional() @Inject(MD_DIALOG_DATA) public data: any) { }
 
   ngOnInit() {
     const result = this.service.getProfile(this.data.profile);

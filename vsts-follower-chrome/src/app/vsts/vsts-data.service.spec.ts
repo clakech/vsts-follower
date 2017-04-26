@@ -19,7 +19,7 @@ import { VstsProject, VstsProjectList } from './vsts-project';
  */
 class MockService {
 
-  public getVstsProfile(): ProfileCredentials {
+  public getProfile(): ProfileCredentials {
     let result = new ProfileCredentials();
     result.login = "benoit.a.fontaine@axa.fr";
     result.password = "yc4d4cakkcarvdtojg6mcem7zqauqgeeflxiggb26feqvoakrs3q___";
@@ -27,7 +27,7 @@ class MockService {
     return result;
   }
 
-  public setVstsProfile(data: ProfileCredentials) {
+  public setProfile(data: ProfileCredentials) {
     return true;
   }
 }
@@ -39,26 +39,27 @@ describe('VstsDataService', () => {
       { provide: ConnectionBackend, useClass: MockBackend },
       { provide: RequestOptions, useClass: BaseRequestOptions },
       Http,
-      VstsDataService,
-      { provide: ProfileService, useClass: MockService }
+      { provide: ProfileService, useClass: MockService },
+      VstsDataService
     ]);
     this.vstsDataService = this.injector.get(VstsDataService);
     this.backend = this.injector.get(ConnectionBackend) as MockBackend;
     this.backend.connections.subscribe((connection: any) => this.lastConnection = connection);
   });
 
-  it('should get projects list', () => {
+  it('should get projects list', (done) => {
     let result: VstsProjectList;
-    this.vstsDataService.getProjects().subscribe(
-      value => result = value
-    );
 
+    console.log(this.vstsDataService);
+    this.vstsDataService.getProjects().subscribe(value => {
+      result = value;
+      expect(result.count).toEqual(10, 'should contain given amount of projects');
+      done();
+    });
 
     this.lastConnection.mockRespond(new Response(new ResponseOptions({
       body: JSON.stringify({ count: 10, value: [] })
     })));
-
-    expect(result.count).toEqual(10, 'should contain given amount of projects');
   });
 
   it('should get projects list return empty if error', () => {
