@@ -15,22 +15,25 @@ export class VstsDataService {
   private projectListSuffix: string = "/defaultcollection/_apis/projects?api-version=2.0";
   private requestOptions: RequestOptions;
   private profile: ProfileCredentials;
+  public projects: Observable<VstsProjectList>;
+  public emitter: any;
 
   constructor(public profileService: ProfileService, private http: Http) {
-    this.profile = this.profileService.getProfile("vsts");
-    let basic: string = 'Basic ' + this.profile.getBasic();
-    let headers = new Headers({ 'Authorization': basic });
-    this.requestOptions = new RequestOptions({ headers: headers });
+    this.projects = new Observable<VstsProjectList>(e => this.emitter = e);
   }
 
   getProjects(): Observable<VstsProjectList> {
+    this.profile = this.profileService.getProfile("vsts");
+    if (this.profile) {
+      let basic: string = 'Basic ' + btoa(this.profile.login.toLowerCase() + ':' + this.profile.password);
+      let headers = new Headers({ 'Authorization': basic });
+      this.requestOptions = new RequestOptions({ headers: headers });
+    }
     return this.http.get(this.profile.url + this.projectListSuffix, this.requestOptions)
       .map((resp) => {
-        return new VstsProjectList(resp.text());
-      })
-      .catch((errorResp) => {
-        console.log(errorResp.text());
-        return null;
+        let newValue = new VstsProjectList(resp.text());
+        this.emitter.next(newValue);
+        return newValue;
       });
   }
 
