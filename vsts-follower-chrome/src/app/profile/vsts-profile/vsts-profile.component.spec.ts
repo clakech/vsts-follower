@@ -1,29 +1,28 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
-import { VstsProfileComponent } from './vsts-profile.component';
-import { VstsProfileService } from './vsts-profile.service';
-import { VstsProject, VstsProjectList } from '../vsts-project';
-import { VstsDataService } from '../vsts-data.service';
-import { VstsLoginDialogComponent } from './vsts-login-dialog/vsts-login-dialog.component';
-import { MaterialModule, MdDialog } from '@angular/material';
 import 'hammerjs';
-import { NgModule } from '@angular/core';
-
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import { VstsCredentials } from '../vsts-credentials';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
+import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { MaterialModule, MdDialog } from '@angular/material';
+import { VstsProject, VstsProjectList } from '../../vsts/vsts-project';
+
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { FormsModule } from '@angular/forms';
+import { Injectable } from '@angular/core';
+import { LoginDialogComponent } from '../login-dialog/login-dialog.component';
+import { NgModule } from '@angular/core';
+import { Observable } from 'rxjs/Observable';
+import { ProfileCredentials } from '../profile-credentials';
+import { ProfileService } from '../profile.service';
+import { VstsDataService } from '../../vsts/vsts-data.service';
+import { VstsProfileComponent } from './vsts-profile.component';
 
 @NgModule({
-  declarations: [VstsLoginDialogComponent],
+  declarations: [LoginDialogComponent],
   imports: [MaterialModule, FormsModule, BrowserAnimationsModule],
-  entryComponents: [VstsLoginDialogComponent],
-  exports: [VstsLoginDialogComponent],
-  providers: []
+  entryComponents: [LoginDialogComponent],
+  exports: [LoginDialogComponent],
+  providers: [ProfileService]
 })
 class TestModule { }
 
@@ -34,15 +33,15 @@ class TestModule { }
  */
 class MockService {
 
-  public getVstsProfile(): VstsCredentials {
-    let result = new VstsCredentials();
+  public getVstsProfile(): ProfileCredentials {
+    let result = new ProfileCredentials();
     result.login = "benoit.a.fontaine@axa.fr";
-    result.token = "yc4d4cakkcarvdtojg6mcem7zqauqgeeflxiggb26feqvoakrs3q___";
+    result.password = "yc4d4cakkcarvdtojg6mcem7zqauqgeeflxiggb26feqvoakrs3q___";
     result.url = "https://axafrance.visualstudio.com";
     return result;
   }
 
-  public setVstsProfile(data: VstsCredentials) {
+  public setVstsProfile(data: ProfileCredentials) {
     return true;
   }
 }
@@ -65,7 +64,7 @@ describe('VstsProfileComponent', () => {
       imports: [MaterialModule, FormsModule, TestModule],
       providers: [
         { provide: VstsDataService, useClass: MockVstsDataService }, 
-        { provide: VstsProfileService, useClass: MockService }
+        { provide: ProfileService, useClass: MockService }
       ]
     })
       .compileComponents();

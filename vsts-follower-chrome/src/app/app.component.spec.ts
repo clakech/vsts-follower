@@ -1,20 +1,19 @@
-import { TestBed, async } from '@angular/core/testing';
-import { RouterTestingModule } from '@angular/router/testing';
-import { FormsModule } from '@angular/forms';
-import { MaterialModule } from '@angular/material';
 import 'hammerjs';
-
-import { AppComponent } from './app.component';
-import { VstsProfileComponent } from './vsts-profile/vsts-profile.component';
-import { VstsLoginDialogComponent } from './vsts-profile/vsts-login-dialog/vsts-login-dialog.component';
-
-import { VstsDataService } from './vsts-data.service';
-import { VstsProfileService } from './vsts-profile/vsts-profile.service';
-import { Observable } from 'rxjs/Observable';
-import { VstsCredentials } from './vsts-credentials';
-import { VstsProject, VstsProjectList } from './vsts-project';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
+
+import { TestBed, async } from '@angular/core/testing';
+import { VstsProject, VstsProjectList } from './vsts/vsts-project';
+
+import { AppComponent } from './app.component';
+import { FormsModule } from '@angular/forms';
+import { MaterialModule } from '@angular/material';
+import { Observable } from 'rxjs/Observable';
+import { ProfileCredentials } from './profile/profile-credentials';
+import { ProfileModule } from './profile/profile.module';
+import { ProfileService } from './profile/profile.service';
+import { RouterTestingModule } from '@angular/router/testing';
+import { VstsDataService } from './vsts/vsts-data.service';
 
 /**
  * Mock of VstsProfileService
@@ -23,15 +22,15 @@ import 'rxjs/add/operator/map';
  */
 class MockService {
 
-  public getVstsProfile(): VstsCredentials {
-    let result = new VstsCredentials();
+  public getVstsProfile(): ProfileCredentials {
+    let result = new ProfileCredentials();
     result.login = "benoit.a.fontaine@axa.fr";
-    result.token = "yc4d4cakkcarvdtojg6mcem7zqauqgeeflxiggb26feqvoakrs3q___";
+    result.password = "yc4d4cakkcarvdtojg6mcem7zqauqgeeflxiggb26feqvoakrs3q___";
     result.url = "https://axafrance.visualstudio.com";
     return result;
   }
 
-  public setVstsProfile(data: VstsCredentials) {
+  public setVstsProfile(data: ProfileCredentials) {
     return true;
   }
 }
@@ -51,16 +50,15 @@ describe('AppComponent', () => {
       imports: [
         RouterTestingModule,
         MaterialModule,
-        FormsModule
+        FormsModule,
+        ProfileModule
       ],
       declarations: [
-        AppComponent,
-        VstsProfileComponent,
-        VstsLoginDialogComponent
+        AppComponent
       ],
       providers: [
         { provide: VstsDataService, useClass: MockVstsDataService }, 
-        { provide: VstsProfileService, useClass: MockService }
+        { provide: ProfileService, useClass: MockService }
       ]
     }).compileComponents();
   }));

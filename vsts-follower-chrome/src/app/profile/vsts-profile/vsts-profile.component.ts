@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
+import { Component, OnInit } from '@angular/core';
+import {VstsProject, VstsProjectList} from '../../vsts/vsts-project';
+
+import {LoginDialogComponent} from '../login-dialog/login-dialog.component';
 import {MdDialog} from '@angular/material';
-import {VstsLoginDialogComponent} from './vsts-login-dialog/vsts-login-dialog.component';
-import {VstsDataService} from '../vsts-data.service';
-import {VstsProject, VstsProjectList} from '../vsts-project';
+import { Observable } from 'rxjs/Observable';
+import {VstsDataService} from '../../vsts/vsts-data.service';
 
 @Component({
   selector: 'follow-vsts-profile',
@@ -21,7 +22,7 @@ export class VstsProfileComponent implements OnInit {
   constructor(public dialog: MdDialog, public vstsDataService: VstsDataService) {}
 
   openDialog() {
-    const dialogRef = this.dialog.open(VstsLoginDialogComponent);
+    const dialogRef = this.dialog.open(LoginDialogComponent, { data: {profile: "vsts"} });
     dialogRef.afterClosed().subscribe(result => {
       //TODO: Variabilize button content !
     });
