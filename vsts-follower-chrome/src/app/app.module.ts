@@ -11,10 +11,12 @@ import { MaterialModule } from '@angular/material';
 import { NgModule } from '@angular/core';
 import { ProfileModule } from './profile/profile.module';
 import { VstsModule } from './vsts/vsts.module';
+import { VstsProjectsComponent } from './vsts-projects/vsts-projects.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    VstsProjectsComponent
   ],
   imports: [
     BrowserModule,

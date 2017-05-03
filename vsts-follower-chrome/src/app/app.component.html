@@ -5,12 +5,10 @@
     <follow-vsts-profile></follow-vsts-profile>
     <follow-sonarqube-profile></follow-sonarqube-profile>
   </md-toolbar>
-  <md-progress-bar mode="indeterminate"></md-progress-bar>
+  <md-progress-bar mode="indeterminate" *ngIf="isBusy"></md-progress-bar>
 
   <div class="app-content">
-    <md-card>
-      <router-outlet></router-outlet>
-    </md-card>
+    <router-outlet></router-outlet>
   </div>
 
 </md-sidenav-container>
