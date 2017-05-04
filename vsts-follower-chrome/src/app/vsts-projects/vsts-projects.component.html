@@ -2,8 +2,30 @@
   <md-tab *ngFor="let project of projects" [label]="project.name">
     <div class="content-style">
       <md-card>
-        <h1>Build n°126445867.3</h1>
-        <p>Under construction</p>
+        <md-card-header>
+          <md-card-title>BUILD N°gdv-20170503.3</md-card-title>
+          <md-card-subtitle>
+            <p>
+              Definition : GDV, Status : <span style="color: green">succed</span>
+            </p>
+          </md-card-subtitle>
+        </md-card-header>
+        <md-grid-list cols="3" rowHeight="4:1">
+          <md-grid-tile>
+            <div>
+              Build Unit Tests :
+              <ul>
+                <li>Tests : 475</li>
+                <li>Succed : 455</li>
+                <li>Failed : <span style="color:red">20</span></li>
+              </ul>
+            </div>
+          </md-grid-tile>
+          <md-grid-tile>
+            <h3>Tests</h3>
+          </md-grid-tile>
+          <md-grid-tile>3</md-grid-tile>
+        </md-grid-list>
       </md-card>
     </div>
   </md-tab>

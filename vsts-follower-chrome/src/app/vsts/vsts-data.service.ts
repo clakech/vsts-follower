@@ -2,7 +2,7 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
 import { Headers, Http, RequestOptions, Response } from '@angular/http';
-import { VstsProject, VstsProjectList } from './vsts-project';
+import { VstsBuild, VstsBuildDefinition, VstsProject, VstsProjectList } from './vsts-project';
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -59,8 +59,8 @@ export class VstsDataService {
     return this.profile.url + "/defaultcollection/" + project.id + "/_apis/";
   }
 
-  getBuildDefinitionsUrl(projectApisUrl: string) : string {
-    return projectApisUrl + "build/definitions?api-version=2.0&type=build";
+  getBuildDefinitionsUrl(project: VstsProject) : string {
+    return this.getProjectApisUrl(project) + "build/definitions?api-version=2.0&type=build";
   }
 
   getLastScheduledBuildUrl(projectApisUrl: string, buildDefinitionNumber: number) : string {

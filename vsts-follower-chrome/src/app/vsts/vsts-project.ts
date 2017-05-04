@@ -1,9 +1,12 @@
+export interface VstsBuildDefinitions {
+    [index: string]: Array<VstsBuildDefinition>;
+}
+
 export class VstsBuildDefinition {
     public project: VstsProject;
     public id: number;
     public name: string;
     public sonarKey: string;
-    public lastBuild: VstsBuild;
 }
 
 export class VstsBuild {

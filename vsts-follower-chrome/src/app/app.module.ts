@@ -12,11 +12,13 @@ import { NgModule } from '@angular/core';
 import { ProfileModule } from './profile/profile.module';
 import { VstsModule } from './vsts/vsts.module';
 import { VstsProjectsComponent } from './vsts-projects/vsts-projects.component';
+import { VstsBuildCardComponent } from './vsts-build-card/vsts-build-card.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    VstsProjectsComponent
+    VstsProjectsComponent,
+    VstsBuildCardComponent
   ],
   imports: [
     BrowserModule,
