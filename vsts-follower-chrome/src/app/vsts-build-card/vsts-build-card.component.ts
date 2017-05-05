@@ -9,7 +9,7 @@ import { VstsBuildDefinition } from '../vsts/vsts-project';
 })
 export class VstsBuildCardComponent implements OnInit {
 
-  @Input() buildDefinition: VstsBuildDefinition;
+  @Input() buildDefinition: VstsBuildDefinition = new VstsBuildDefinition();
 
   constructor() { }
 

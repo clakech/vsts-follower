@@ -13,12 +13,14 @@ import { ProfileModule } from './profile/profile.module';
 import { VstsModule } from './vsts/vsts.module';
 import { VstsProjectsComponent } from './vsts-projects/vsts-projects.component';
 import { VstsBuildCardComponent } from './vsts-build-card/vsts-build-card.component';
+import { VstsProjectComponent } from './vsts-project/vsts-project.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     VstsProjectsComponent,
-    VstsBuildCardComponent
+    VstsBuildCardComponent,
+    VstsProjectComponent
   ],
   imports: [
     BrowserModule,

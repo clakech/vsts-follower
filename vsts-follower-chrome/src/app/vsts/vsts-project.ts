@@ -1,7 +1,3 @@
-export interface VstsBuildDefinitions {
-    [index: string]: Array<VstsBuildDefinition>;
-}
-
 export class VstsBuildDefinition {
     public project: VstsProject;
     public id: number;

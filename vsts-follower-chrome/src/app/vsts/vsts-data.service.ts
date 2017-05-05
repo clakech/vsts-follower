@@ -34,7 +34,7 @@ export class VstsDataService {
     }
   }
 
-  launchGetForUrl(url: string) : Observable<Response> {
+  launchGetForUrl(url: string): Observable<Response> {
     return this.http.get(url, this.requestOptions);
   }
 
@@ -49,33 +49,55 @@ export class VstsDataService {
       });
   }
 
-  getProjectsApiUrl() : string {
+  getBuildDefinitionsForProject(project: VstsProject): Observable<VstsBuildDefinition[]> {
+    //this.busyEmitter.next(true);
+    return this.launchGetForUrl(this.getBuildDefinitionsUrl(project))
+      .map((resp) => {
+        let list: Array<VstsBuildDefinition> = new Array<VstsBuildDefinition>();
+        try {
+          let result = JSON.parse(resp.text()).value;
+          result.forEach(buildDefinition => {
+            let definition = new VstsBuildDefinition();
+            definition.id = buildDefinition.id;
+            definition.name = buildDefinition.name;
+            definition.project = project;
+            list.push(definition);
+          });
+        } catch (error) {
+          console.log("json value bad format !");
+        }
+        //this.busyEmitter.next(false);
+        return list;
+      });
+  }
+
+  getProjectsApiUrl(): string {
     this.setProfileAndHeaders();
     return this.profile.url + "/defaultcollection/_apis/projects?api-version=2.0";
   }
 
-  getProjectApisUrl(project: VstsProject) : string {
+  getProjectApisUrl(project: VstsProject): string {
     this.setProfileAndHeaders();
     return this.profile.url + "/defaultcollection/" + project.id + "/_apis/";
   }
 
-  getBuildDefinitionsUrl(project: VstsProject) : string {
+  getBuildDefinitionsUrl(project: VstsProject): string {
     return this.getProjectApisUrl(project) + "build/definitions?api-version=2.0&type=build";
   }
 
-  getLastScheduledBuildUrl(projectApisUrl: string, buildDefinitionNumber: number) : string {
+  getLastScheduledBuildUrl(projectApisUrl: string, buildDefinitionNumber: number): string {
     return projectApisUrl + "build/builds?definitions=" + buildDefinitionNumber.toString() + "&statusFilter=completed&$top=1&reasonFilter=schedule&api-version=2.0";
   }
 
-  getLastManualBuildUrl(projectApisUrl: string, buildDefinitionNumber: number) : string {
+  getLastManualBuildUrl(projectApisUrl: string, buildDefinitionNumber: number): string {
     return projectApisUrl + "build/builds?definitions=" + buildDefinitionNumber.toString() + "&statusFilter=completed&$top=1&reasonFilter=manual&api-version=2.0";
   }
 
-  getLastTriggeredBuildUrl(projectApisUrl: string, buildDefinitionNumber: number) : string {
+  getLastTriggeredBuildUrl(projectApisUrl: string, buildDefinitionNumber: number): string {
     return projectApisUrl + "build/builds?definitions=" + buildDefinitionNumber.toString() + "&statusFilter=completed&$top=1&reasonFilter=triggered&api-version=2.0";
   }
 
-  getTestResultUrlForBuild(projectApisUrl: string, buildId: number, includeFailureDetails: boolean) : string {
+  getTestResultUrlForBuild(projectApisUrl: string, buildId: number, includeFailureDetails: boolean): string {
     let url = projectApisUrl + "test/ResultSummaryByBuild?buildId=" + buildId.toString();
     if (includeFailureDetails) {
       url += "&includeFailureDetails=true";
@@ -83,7 +105,7 @@ export class VstsDataService {
     return url;
   }
 
-  getCodeCoverageUrlForBuild(projectApisUrl: string, buildId: number) : string {
+  getCodeCoverageUrlForBuild(projectApisUrl: string, buildId: number): string {
     return projectApisUrl + "test/ResultSummaryByBuild?buildId=" + buildId.toString();
   }
 

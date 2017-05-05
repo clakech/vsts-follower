@@ -2,7 +2,7 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
 import { Component, OnInit } from '@angular/core';
-import { VstsProject, VstsProjectList } from '../vsts/vsts-project';
+import { VstsBuildDefinition, VstsProject, VstsProjectList } from '../vsts/vsts-project';
 
 import { MdDialog } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
@@ -15,7 +15,9 @@ import { VstsDataService } from '../vsts/vsts-data.service';
 })
 export class VstsProjectsComponent implements OnInit {
   public projects: VstsProject[];
-  constructor(public vstsDataService: VstsDataService) { }
+
+  constructor(public vstsDataService: VstsDataService) {
+  }
 
   ngOnInit() {
     this.vstsDataService.projects.subscribe(list => {
