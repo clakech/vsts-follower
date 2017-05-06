@@ -1,5 +1,9 @@
 import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/retry';
+import 'rxjs/add/operator/retrywhen';
+import 'rxjs/add/operator/delay';
+import 'rxjs/add/operator/timeout';
 
 import { Headers, Http, RequestOptions, Response } from '@angular/http';
 import { VstsBuild, VstsBuildDefinition, VstsProject, VstsProjectList } from './vsts-project';
@@ -20,7 +24,7 @@ export class VstsDataService {
   public isBusy: Observable<boolean>;
   public busyEmitter: any;
 
-  constructor(public profileService: ProfileService, private http: Http) {
+  constructor(public profileService: ProfileService, public http: Http) {
     this.projects = new Observable<VstsProjectList>(e => this.emitter = e);
     this.isBusy = new Observable<boolean>(e => this.busyEmitter = e);
   }
@@ -35,7 +39,9 @@ export class VstsDataService {
   }
 
   launchGetForUrl(url: string): Observable<Response> {
-    return this.http.get(url, this.requestOptions);
+    return this.http.get(url, this.requestOptions)
+      .retryWhen(error => error.delay(500))
+      .timeout(6000);
   }
 
   getProjects(): Observable<VstsProjectList> {
@@ -71,6 +77,31 @@ export class VstsDataService {
       });
   }
 
+  getTenLastBuildsForDefinition(definition: VstsBuildDefinition): Observable<VstsBuild[]> {
+    //add queue system
+    return this.launchGetForUrl(this.getTenLastBuildsUrl(definition))
+      .map((resp) => {
+        let list: Array<VstsBuild> = new Array<VstsBuild>();
+        try {
+          let result = JSON.parse(resp.text()).value;
+          result.forEach(receivedBuild => {
+            let build = new VstsBuild();
+            build.id = receivedBuild.id;
+            build.buildNumber = receivedBuild.buildNumber;
+            build.reason = receivedBuild.reason;
+            build.result = receivedBuild.result;
+            build.queueTime = new Date(receivedBuild.queueTime);
+            build.startTime = new Date(receivedBuild.startTime);
+            build.finishTime = new Date(receivedBuild.finishTime);
+            list.push(build);
+          });
+        } catch (error) {
+          console.log("json value bad format !");
+        }
+        return list;
+      });
+  }
+
   getProjectsApiUrl(): string {
     this.setProfileAndHeaders();
     return this.profile.url + "/defaultcollection/_apis/projects?api-version=2.0";
@@ -95,6 +126,10 @@ export class VstsDataService {
 
   getLastTriggeredBuildUrl(projectApisUrl: string, buildDefinitionNumber: number): string {
     return projectApisUrl + "build/builds?definitions=" + buildDefinitionNumber.toString() + "&statusFilter=completed&$top=1&reasonFilter=triggered&api-version=2.0";
+  }
+
+  getTenLastBuildsUrl(buildDefinition: VstsBuildDefinition): string {
+    return this.getProjectApisUrl(buildDefinition.project) + "build/builds?definitions=" + buildDefinition.id.toString() + "&statusFilter=completed&$top=10&api-version=2.0";
   }
 
   getTestResultUrlForBuild(projectApisUrl: string, buildId: number, includeFailureDetails: boolean): string {
