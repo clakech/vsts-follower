@@ -6,18 +6,12 @@
   </md-grid-list>
 </md-card>-->
 <md-card>
-  <md-grid-list cols="6" rowHeight="60px">
-    <md-grid-tile colspan="4">
-      <md-card-header>
-        <md-card-title>BUILD N°20170503.3</md-card-title>
-        <md-card-subtitle>
-          <p>
-            Definition : {{ buildDefinition.name }}, Status : <span style="color: green">succed</span>
-          </p>
-        </md-card-subtitle>
-      </md-card-header>
+  <h1>{{ buildDefinition.name }}</h1>
+  <md-grid-list cols="6" rowHeight="40px">
+    <md-grid-tile colspan="4" [style.background]="getBuildColor()">
+      <h2>{{ lastBuild.buildNumber }} ({{ lastBuild.reason }})</h2><br />
     </md-grid-tile>
-    <md-grid-tile colspan="2" rowspan="2">
+    <md-grid-tile colspan="2" rowspan="2" [style.background]="getBuildColor()">
       <div>
         Build Unit Tests :
         <ul>
@@ -27,9 +21,8 @@
         </ul>
       </div>
     </md-grid-tile>
-    <md-grid-tile>
-      <h3>Tests</h3>
+    <md-grid-tile *ngFor="let indicator of indicators" [style.background]="indicator.color">
+      <follow-quality-indicator [indicatorName]="indicator.name" [indicatorValue]="indicator.value"></follow-quality-indicator>
     </md-grid-tile>
-    <md-grid-tile>3</md-grid-tile>
   </md-grid-list>
 </md-card>

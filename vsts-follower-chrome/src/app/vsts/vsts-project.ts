@@ -12,6 +12,7 @@ export class VstsBuild {
     public startTime: Date;
     public finishTime: Date;
     public result: string;
+    public reason: string;
 }
 
 
