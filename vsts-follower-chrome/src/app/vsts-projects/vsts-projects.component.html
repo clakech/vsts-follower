@@ -1,5 +1,5 @@
 <md-tab-group md-dynamic-height flex>
-  <md-tab *ngFor="let project of projects" [label]="project.name">
+  <md-tab *ngFor="let project of projects" [label]="project.project.name">
     <follow-vsts-project [project]="project"></follow-vsts-project>
   </md-tab>
 </md-tab-group>

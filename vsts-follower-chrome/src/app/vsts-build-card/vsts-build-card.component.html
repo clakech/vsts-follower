@@ -6,12 +6,12 @@
   </md-grid-list>
 </md-card>-->
 <md-card>
-  <h1>{{ buildDefinition.name }}</h1>
+  <h1>{{ build.definition.name }}</h1>
   <md-grid-list cols="6" rowHeight="40px">
-    <md-grid-tile colspan="4" [style.background]="getBuildColor()">
-      <h2>{{ lastBuild.buildNumber }} ({{ lastBuild.reason }})</h2><br />
+    <md-grid-tile colspan="4" [style.background]="getBuildColor()" *ngIf="build.last">
+      <h2>{{ build.last.buildNumber }} ({{ build.last.reason }})</h2><br />
     </md-grid-tile>
-    <md-grid-tile colspan="2" rowspan="2" [style.background]="getBuildColor()">
+    <md-grid-tile colspan="2" rowspan="2">
       <div>
         Build Unit Tests :
         <ul>
