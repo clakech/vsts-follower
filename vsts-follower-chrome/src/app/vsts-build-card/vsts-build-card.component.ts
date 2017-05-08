@@ -29,6 +29,10 @@ export class VstsBuildCardComponent implements OnInit {
     this.setSonarNullInformations();
   }
 
+  getDefaultColor() {
+    return "gainsboro";
+  }
+
   getBuildColor(): string {
     let color: string;
     switch (this.build.last.result) {

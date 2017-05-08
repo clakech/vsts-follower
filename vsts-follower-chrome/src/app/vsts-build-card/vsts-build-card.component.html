@@ -11,14 +11,13 @@
     <md-grid-tile colspan="4" [style.background]="getBuildColor()" *ngIf="build.last">
       <h2>{{ build.last.buildNumber }} ({{ build.last.reason }})</h2><br />
     </md-grid-tile>
-    <md-grid-tile colspan="2" rowspan="2">
+    <md-grid-tile colspan="4" [style.background]="getDefaultColor()" *ngIf="!build.last">
+      <h2>No build</h2><br />
+    </md-grid-tile>
+    <md-grid-tile colspan="2" rowspan="2" [style.background]="getDefaultColor()">
       <div>
-        Build Unit Tests :
-        <ul>
-          <li>Tests : 475</li>
-          <li>Succed : 455</li>
-          <li>Failed : <span style="color:red">20</span></li>
-        </ul>
+        Unit Tests :<br />
+        Work in progress...
       </div>
     </md-grid-tile>
     <md-grid-tile *ngFor="let indicator of indicators" [style.background]="indicator.color">

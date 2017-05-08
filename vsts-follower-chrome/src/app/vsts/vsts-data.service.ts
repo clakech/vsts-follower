@@ -4,6 +4,9 @@ import 'rxjs/add/operator/retry';
 import 'rxjs/add/operator/retrywhen';
 import 'rxjs/add/operator/delay';
 import 'rxjs/add/operator/timeout';
+import 'rxjs/add/operator/take';
+import 'rxjs/add/operator/zip';
+import 'rxjs/add/operator/merge';
 
 import { FullProject, MainBuildsInfo, VstsBuild, VstsBuildDefinition, VstsProject, VstsProjectList } from './vsts-project';
 import { Headers, Http, RequestOptions, Response } from '@angular/http';
@@ -61,87 +64,70 @@ export class VstsDataService {
         emitter.next(projects);
       });
       this.getDefinitionsBatch(projects).subscribe(definitions => {
-        this.supplyProjectsWithBuildDefinitions(projects, definitions);
         emitter.next(projects);
-        console.log(projects);
-        this.getBuildsWithoutBatch(projects).subscribe(result => {
-          emitter.next(result);
-          console.log(result);
+        this.getBuildsBatch(definitions).subscribe(builds => {
+          this.supplyProjectsWithBuilds(projects, builds);
+          emitter.next(projects);
           this.busyEmitter.next(false);
         });
       });
     });
   }
 
-  getBuildsBatch(projects: Array<FullProject>): Observable<Array<FullProject>> {
-    let batch = new Array<Observable<FullProject>>();
+  supplyProjectsWithBuilds(projects: Array<FullProject>, buildGroups: Array<MainBuildsInfo[]>) {
     projects.forEach(project => {
-      batch.push(this.addBuildsOnProject(project));
+      buildGroups.forEach(buildArray => {
+        if (buildArray.length > 0 && buildArray[0].definition.project.id === project.project.id) {
+          this.addBuildsOnFullProject(project, buildArray.sort((a, b) => {
+          if (a.definition.name < b.definition.name)
+            return -1;
+          if (a.definition.name > b.definition.name)
+            return 1;
+          return 0;
+        }));
+        }
+      });
+    });
+  }
+
+  addBuildsOnFullProject(project: FullProject, builds: MainBuildsInfo[]) {
+    project.builds = new Array<MainBuildsInfo>();
+    builds.forEach(build => {
+      project.builds.push(build);
+    })
+  }
+
+  getBuildsBatch(buildsDefinitions: VstsBuildDefinition[][]): Observable<Array<MainBuildsInfo[]>> {
+    let batch = new Array<Observable<MainBuildsInfo[]>>();
+    buildsDefinitions.forEach(definitionGroup => {
+      batch.push(this.getBuildsForDefinitionGroup(definitionGroup));
     });
     return Observable.forkJoin(batch);
   }
 
-  getBuildsWithoutBatch(projects: Array<FullProject>, index?: number): Observable<Array<FullProject>> {
-    let _projects = projects;
-    let currentIndex = 0;
-    if (index) {
-      currentIndex = index;
-    }
-
-    if (currentIndex >= projects.length) {
-      return new Observable<FullProject[]>(e => e.next(_projects));
-    }
-    console.log(projects[currentIndex].project.name + " - " + currentIndex);
-    this.addBuildsOnProject(projects[currentIndex]).subscribe(project => {
-      try {
-        _projects[currentIndex].builds = project.builds;
-      } catch (error) {
-        console.log(error);
-      }
-      
-      return this.getBuildsWithoutBatch(_projects, currentIndex+1);
+  getBuildsForDefinitionGroup(definitionGroup: VstsBuildDefinition[]): Observable<Array<MainBuildsInfo>> {
+    let batch = new Array<Observable<MainBuildsInfo>>();
+    definitionGroup.forEach(build => {
+      batch.push(this.getBuildByDefinition(build));
     });
+    return Observable.forkJoin(batch);
   }
 
-  addBuildsOnProject(project: FullProject, index?: number): Observable<FullProject> {
-    let prj = project;
-    let currentIndex = 0;
-    if (index) {
-      currentIndex = index;
-    }
-
-    if (currentIndex >= project.builds.length) {
-      return new Observable<FullProject>(e => e.next(project));
-    }
-    
-    this.getTenLastBuildsForDefinition(project.builds[currentIndex].definition).subscribe(builds => {
-      try {
-        if (builds.length > 0) {
-          prj.builds[currentIndex].last = this.getLastBuild(builds, 0);
-        }
-      }
-      catch (error) {
-        console.log(error);
-      }
-      currentIndex = currentIndex +1;
-      return this.addBuildsOnProject(prj, currentIndex);
+  getBuildByDefinition(definition: VstsBuildDefinition): Observable<MainBuildsInfo> {
+    return this.getLastBuildsForDefinition(definition, 10).map(builds => {
+      let newBuild = new MainBuildsInfo(definition);
+      newBuild.last = builds.filter(build => {
+        //return build.reason === "schedule" || build.reason === "manual" || build.reason === "triggered" || build.re
+        return build.reason !== "validateShelveset";
+      }).sort((a, b) => {
+        if (a.startTime > b.startTime)
+          return -1;
+        if (a.startTime < b.startTime)
+          return 1;
+        return 0;
+      })[0];
+      return newBuild;
     });
-  }
-
-  getLastBuild(builds: Array<VstsBuild>, index: number): VstsBuild {
-    if (index >= builds.length) {
-      return builds[0];
-    }
-    if (builds[index].reason === "schedule") {
-      return builds[index];
-    }
-    if (builds[index].reason === "manual") {
-      return builds[index];
-    }
-    if (builds[index].reason === "triggered") {
-      return builds[index];
-    }
-    return this.getLastBuild(builds, index++);
   }
 
   getDefinitionsBatch(projects: Array<FullProject>): Observable<Array<VstsBuildDefinition[]>> {
@@ -152,30 +138,11 @@ export class VstsDataService {
     return Observable.forkJoin(batch);
   }
 
-  supplyProjectsWithBuildDefinitions(projects: Array<FullProject>, buildDefinitions: Array<VstsBuildDefinition[]>) {
-    projects.forEach(project => {
-      buildDefinitions.forEach(buildDefinitionsArray => {
-        if (buildDefinitionsArray.length > 0 && buildDefinitionsArray[0].project.id === project.project.id) {
-          this.addDefinitionsOnFullProject(project, buildDefinitionsArray);
-        }
-      });
-    });
-  }
-
-  addDefinitionsOnFullProject(project: FullProject, definitions: VstsBuildDefinition[]) {
-    project.builds = new Array<MainBuildsInfo>();
-    definitions.forEach(definition => {
-      let build = new MainBuildsInfo(definition);
-      project.builds.push(build);
-    })
-  }
-
   getProjectsList(): Observable<Array<VstsProject>> {
     return this.launchGetForUrl(this.getProjectsApiUrl())
       .map((resp) => {
         let newValue = new VstsProjectList(resp.text());
         this.emitter.next(newValue);
-        this.busyEmitter.next(false);
         return newValue.value.sort((a, b) => {
           if (a.name < b.name)
             return -1;
@@ -192,13 +159,11 @@ export class VstsDataService {
       .map((resp) => {
         let newValue = new VstsProjectList(resp.text());
         this.emitter.next(newValue);
-        this.busyEmitter.next(false);
         return newValue;
       });
   }
 
   getBuildDefinitionsForProject(project: VstsProject): Observable<VstsBuildDefinition[]> {
-    //this.busyEmitter.next(true);
     return this.launchGetForUrl(this.getBuildDefinitionsUrl(project))
       .map((resp) => {
         let list: Array<VstsBuildDefinition> = new Array<VstsBuildDefinition>();
@@ -214,14 +179,13 @@ export class VstsDataService {
         } catch (error) {
           console.log("json value bad format !");
         }
-        //this.busyEmitter.next(false);
         return list;
       });
   }
 
-  getTenLastBuildsForDefinition(definition: VstsBuildDefinition): Observable<VstsBuild[]> {
+  getLastBuildsForDefinition(definition: VstsBuildDefinition, numberOfBuilds: number): Observable<VstsBuild[]> {
     //add queue system
-    return this.launchGetForUrl(this.getTenLastBuildsUrl(definition))
+    return this.launchGetForUrl(this.getTenLastBuildsUrl(definition, numberOfBuilds))
       .map((resp) => {
         let list: Array<VstsBuild> = new Array<VstsBuild>();
         try {
@@ -270,8 +234,8 @@ export class VstsDataService {
     return projectApisUrl + "build/builds?definitions=" + buildDefinitionNumber.toString() + "&statusFilter=completed&$top=1&reasonFilter=triggered&api-version=2.0";
   }
 
-  getTenLastBuildsUrl(buildDefinition: VstsBuildDefinition): string {
-    return this.getProjectApisUrl(buildDefinition.project) + "build/builds?definitions=" + buildDefinition.id.toString() + "&statusFilter=completed&$top=10&api-version=2.0";
+  getTenLastBuildsUrl(buildDefinition: VstsBuildDefinition, numberOfBuilds: number): string {
+    return this.getProjectApisUrl(buildDefinition.project) + "build/builds?definitions=" + buildDefinition.id.toString() + "&statusFilter=completed&$top=" + numberOfBuilds.toString() + "&api-version=2.0";
   }
 
   getTestResultUrlForBuild(projectApisUrl: string, buildId: number, includeFailureDetails: boolean): string {
