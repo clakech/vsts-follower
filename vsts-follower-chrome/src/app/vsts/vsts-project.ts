@@ -1,3 +1,22 @@
+
+export class MainBuildsInfo {
+    public definition: VstsBuildDefinition;
+    public last: VstsBuild;
+
+    constructor(buildDefinition: VstsBuildDefinition) {
+        this.definition = buildDefinition;
+    }
+}
+
+export class FullProject {
+    public project: VstsProject;
+    public builds: Array<MainBuildsInfo> = new Array<MainBuildsInfo>();
+
+    constructor(project: VstsProject) {
+        this.project = project;
+    }
+}
+
 export class VstsBuildDefinition {
     public project: VstsProject;
     public id: number;

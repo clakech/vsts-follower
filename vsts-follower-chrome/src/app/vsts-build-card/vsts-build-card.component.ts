@@ -2,7 +2,7 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
 import { Component, Input, OnInit } from '@angular/core';
-import { VstsBuild, VstsBuildDefinition } from '../vsts/vsts-project';
+import { MainBuildsInfo, VstsBuild, VstsBuildDefinition } from '../vsts/vsts-project';
 
 import { Observable } from 'rxjs/Observable';
 import { VstsDataService } from '../vsts/vsts-data.service';
@@ -20,43 +20,22 @@ class QualityIndicator {
 })
 export class VstsBuildCardComponent implements OnInit {
 
-  @Input() buildDefinition: VstsBuildDefinition = new VstsBuildDefinition();
+  @Input() build: MainBuildsInfo = new MainBuildsInfo(new VstsBuildDefinition());
   public indicators: Array<QualityIndicator> = new Array<QualityIndicator>();
-  public lastBuild: VstsBuild = new VstsBuild();
 
   constructor(public vstsDataService: VstsDataService) { }
 
   ngOnInit() {
-    this.chooseBuild();
-
     this.setSonarNullInformations();
   }
 
-  chooseBuild() {
-    this.vstsDataService.getTenLastBuildsForDefinition(this.buildDefinition).subscribe(builds => {
-      this.lastBuild = this.getLastBuild(builds, 0);
-    });
-  }
-
-  getLastBuild(builds: Array<VstsBuild>, index: number): VstsBuild {
-    if (index >= builds.length) {
-      return builds[0];
-    }
-    if (builds[index].reason === "schedule") {
-      return builds[index];
-    }
-    if (builds[index].reason === "manual") {
-      return builds[index];
-    }
-    if (builds[index].reason === "triggered") {
-      return builds[index];
-    }
-    return this.getLastBuild(builds, index++);
+  getDefaultColor() {
+    return "gainsboro";
   }
 
   getBuildColor(): string {
     let color: string;
-    switch (this.lastBuild.result) {
+    switch (this.build.last.result) {
       case "succeeded":
         color = "limegreen";
         break;

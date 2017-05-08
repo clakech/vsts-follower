@@ -1,6 +1,6 @@
 
 <md-grid-list cols="1" rowHeight="4:1">
-  <md-grid-tile *ngFor="let buildDefinition of buildDefinitions">
-    <follow-vsts-build-card [buildDefinition]="buildDefinition"></follow-vsts-build-card>
+  <md-grid-tile *ngFor="let build of project.builds">
+    <follow-vsts-build-card [build]="build"></follow-vsts-build-card>
   </md-grid-tile>
 </md-grid-list>

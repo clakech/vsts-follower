@@ -2,7 +2,7 @@ import 'rxjs/add/operator/catch';
 import 'rxjs/add/operator/map';
 
 import { Component, OnInit } from '@angular/core';
-import { VstsBuildDefinition, VstsProject, VstsProjectList } from '../vsts/vsts-project';
+import { FullProject, VstsProject } from '../vsts/vsts-project';
 
 import { MdDialog } from '@angular/material';
 import { Observable } from 'rxjs/Observable';
@@ -14,13 +14,13 @@ import { VstsDataService } from '../vsts/vsts-data.service';
   styleUrls: ['./vsts-projects.component.css']
 })
 export class VstsProjectsComponent implements OnInit {
-  public projects: VstsProject[];
+  public projects: FullProject[];
 
   constructor(public vstsDataService: VstsDataService) {
   }
 
   ngOnInit() {
-    this.vstsDataService.projects.subscribe(list => {
+    /*this.vstsDataService.projects.subscribe(list => {
       if (list.count > 0) {
         this.projects = list.value.sort((a, b) => {
           if (a.name < b.name)
@@ -30,6 +30,10 @@ export class VstsProjectsComponent implements OnInit {
           return 0;
         });
       }
+    });*/
+
+    this.vstsDataService.vstsProjectList.subscribe(list => {
+      this.projects = list;
     });
   }
 
