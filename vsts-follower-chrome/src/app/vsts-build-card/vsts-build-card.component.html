@@ -14,10 +14,19 @@
     <md-grid-tile colspan="4" [style.background]="getDefaultColor()" *ngIf="!build.last">
       <h2>No build</h2><br />
     </md-grid-tile>
-    <md-grid-tile colspan="2" rowspan="2" [style.background]="getDefaultColor()">
+    <md-grid-tile colspan="2" rowspan="2" [style.background]="testColor" >
       <div>
-        Unit Tests :<br />
-        Work in progress...
+        Unit Tests<br />
+        <ul *ngIf="testResult.totalTests > 0">
+          <li>
+            Tests :       <span style="color: green"><b>{{ testResult.passedTests }}</b></span>
+            &nbsp;/&nbsp; <span style="color: red"><b>{{ testResult.failedTests }}</b></span>
+            &nbsp;/&nbsp; <span><b>{{ testResult.totalTests }}</b></span>
+          </li>
+          <li *ngFor="let coverage of calculatedCoverages">
+            <span>{{ coverage }}</span>
+          </li>
+        </ul>
       </div>
     </md-grid-tile>
     <md-grid-tile *ngFor="let indicator of indicators" [style.background]="indicator.color">

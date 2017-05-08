@@ -8,6 +8,7 @@ import 'rxjs/add/operator/take';
 import 'rxjs/add/operator/zip';
 import 'rxjs/add/operator/merge';
 
+import { BuildInfo, Coverage, TestResult } from '../test-result';
 import { FullProject, MainBuildsInfo, VstsBuild, VstsBuildDefinition, VstsProject, VstsProjectList } from './vsts-project';
 import { Headers, Http, RequestOptions, Response } from '@angular/http';
 
@@ -51,8 +52,11 @@ export class VstsDataService {
 
   launchGetForUrl(url: string): Observable<Response> {
     return this.http.get(url, this.requestOptions)
-      .retryWhen(error => error.delay(500))
-      .timeout(6000);
+      /*.retryWhen(error => {
+        console.log(error);
+        return error.delay(500);
+      })
+      .timeout(6000)*/;
   }
 
   initiateProjects(emitter) {
@@ -65,8 +69,8 @@ export class VstsDataService {
       });
       this.getDefinitionsBatch(projects).subscribe(definitions => {
         emitter.next(projects);
-        this.getBuildsBatch(definitions).subscribe(builds => {
-          this.supplyProjectsWithBuilds(projects, builds);
+        this.getBuildsBatch(definitions).subscribe(buildGroups => {
+          this.supplyProjectsWithBuilds(projects, buildGroups);
           emitter.next(projects);
           this.busyEmitter.next(false);
         });
@@ -77,17 +81,21 @@ export class VstsDataService {
   supplyProjectsWithBuilds(projects: Array<FullProject>, buildGroups: Array<MainBuildsInfo[]>) {
     projects.forEach(project => {
       buildGroups.forEach(buildArray => {
-        if (buildArray.length > 0 && buildArray[0].definition.project.id === project.project.id) {
-          this.addBuildsOnFullProject(project, buildArray.sort((a, b) => {
-          if (a.definition.name < b.definition.name)
-            return -1;
-          if (a.definition.name > b.definition.name)
-            return 1;
-          return 0;
-        }));
-        }
+        this.supplyProjectWithBuilds(project, buildArray);
       });
     });
+  }
+
+  supplyProjectWithBuilds(project: FullProject, buildArray: MainBuildsInfo[]) {
+    if (buildArray.length > 0 && buildArray[0].definition.project.id === project.project.id) {
+      this.addBuildsOnFullProject(project, buildArray.sort((a, b) => {
+        if (a.definition.name < b.definition.name)
+          return -1;
+        if (a.definition.name > b.definition.name)
+          return 1;
+        return 0;
+      }));
+    }
   }
 
   addBuildsOnFullProject(project: FullProject, builds: MainBuildsInfo[]) {
@@ -112,6 +120,43 @@ export class VstsDataService {
     });
     return Observable.forkJoin(batch);
   }
+
+  getTestResultsBatch(buildsGroups: MainBuildsInfo[][]): Observable<Array<MainBuildsInfo[]>> {
+    let batch = new Array<Observable<MainBuildsInfo[]>>();
+    buildsGroups.forEach(buildsGroup => {
+      batch.push(this.getTestResultsForDefinitionGroup(buildsGroup));
+    });
+    return Observable.forkJoin(batch);
+  }
+
+  getTestResultsForDefinitionGroup(builds: MainBuildsInfo[]): Observable<Array<MainBuildsInfo>> {
+    let batch = new Array<Observable<MainBuildsInfo>>();
+    builds.forEach(build => {
+      batch.push(this.getTestResultForMainBuild(build));
+    });
+    return Observable.forkJoin(batch);
+  }
+
+  getTestResultForMainBuild(build: MainBuildsInfo): Observable<MainBuildsInfo> {
+    if (build.last) {
+      return this.getTestResultForBuild(build).map(result => {
+        let newBuild = new MainBuildsInfo(build.definition);
+        newBuild.last = build.last;
+        newBuild.testResult = result;
+        return newBuild;
+      });
+    } else {
+      return new Observable<MainBuildsInfo>(e => {
+        let newBuild = new MainBuildsInfo(build.definition);
+        newBuild.testResult = new TestResult();
+        e.next(newBuild);
+      }).map(result => {
+        return result;
+      });
+    }
+  }
+
+
 
   getBuildByDefinition(definition: VstsBuildDefinition): Observable<MainBuildsInfo> {
     return this.getLastBuildsForDefinition(definition, 10).map(builds => {
@@ -154,7 +199,6 @@ export class VstsDataService {
   }
 
   getProjects(): Observable<VstsProjectList> {
-    this.busyEmitter.next(true);
     return this.launchGetForUrl(this.getProjectsApiUrl())
       .map((resp) => {
         let newValue = new VstsProjectList(resp.text());
@@ -238,16 +282,86 @@ export class VstsDataService {
     return this.getProjectApisUrl(buildDefinition.project) + "build/builds?definitions=" + buildDefinition.id.toString() + "&statusFilter=completed&$top=" + numberOfBuilds.toString() + "&api-version=2.0";
   }
 
-  getTestResultUrlForBuild(projectApisUrl: string, buildId: number, includeFailureDetails: boolean): string {
-    let url = projectApisUrl + "test/ResultSummaryByBuild?buildId=" + buildId.toString();
+  getTestResultForBuild(build: MainBuildsInfo, includeFailureDetails?: boolean): Observable<TestResult> {
+    let detailedFailures: boolean = false;
+    if (includeFailureDetails) {
+      includeFailureDetails = true;
+    }
+
+    return this.launchGetForUrl(this.getTestResultUrlForBuild(build, detailedFailures))
+      .map((resp) => {
+        let result = JSON.parse(resp.text());
+        let testResult = new TestResult();
+        testResult.build = new BuildInfo();
+        testResult.build.id = build.last.id;
+        testResult.build.name = build.last.buildNumber;
+        testResult.totalTests = result.aggregatedResultsAnalysis.totalTests;
+        if (testResult.totalTests === 0) {
+          return testResult;
+        }
+        if (result.aggregatedResultsAnalysis.resultsByOutcome.Passed) {
+          testResult.passedTests = result.aggregatedResultsAnalysis.resultsByOutcome.Passed.count;
+        }
+        if (result.aggregatedResultsAnalysis.resultsByOutcome.Failed) {
+          testResult.failedTests = result.aggregatedResultsAnalysis.resultsByOutcome.Failed.count;
+        }
+        if (result.aggregatedResultsAnalysis.resultsByOutcome.NotExecuted) {
+          testResult.passedTests = result.aggregatedResultsAnalysis.resultsByOutcome.NotExecuted.count;
+        }
+
+        return testResult;/*
+
+        return this.launchGetForUrl(this.getCodeCoverageUrlForBuild(build))
+          .map(response => {
+            let coverageResult = JSON.parse(response.text());
+            testResult.build.url = coverageResult.build.url;
+            if (coverageResult.coverageData.length == 0) {
+              return testResult;
+            }
+            coverageResult.coverageData.forEach(coverage => {
+              let newCoverage = new Coverage();
+              newCoverage.label = coverage.label;
+              newCoverage.position = coverage.position;
+              newCoverage.covered = coverage.covered;
+              newCoverage.total = coverage.total;
+              testResult.coverageStats.push(newCoverage);
+            });
+            return testResult;
+          });*/
+      });
+  }
+
+  getTestCoverageForBuild(build: MainBuildsInfo): Observable<Array<Coverage>> {
+    return this.launchGetForUrl(this.getCodeCoverageUrlForBuild(build))
+      .map(response => {
+        let coverageResult = JSON.parse(response.text());
+        let coverages = new Array<Coverage>();
+        if (coverageResult.coverageData && coverageResult.coverageData.length > 0 && coverageResult.coverageData[0].coverageStats) {
+          coverageResult.coverageData[0].coverageStats.forEach(coverage => {
+            let newCoverage = new Coverage();
+            newCoverage.label = coverage.label;
+            newCoverage.position = coverage.position;
+            newCoverage.covered = coverage.covered;
+            newCoverage.total = coverage.total;
+            coverages.push(newCoverage);
+          });
+        }
+        return coverages;
+      });
+  }
+
+  getTestResultUrlForBuild(build: MainBuildsInfo, includeFailureDetails: boolean): string {
+    let url = this.getProjectApisUrl(build.definition.project) + "test/ResultSummaryByBuild?buildId=" + build.last.id.toString();
     if (includeFailureDetails) {
       url += "&includeFailureDetails=true";
     }
     return url;
   }
 
-  getCodeCoverageUrlForBuild(projectApisUrl: string, buildId: number): string {
-    return projectApisUrl + "test/ResultSummaryByBuild?buildId=" + buildId.toString();
+  getCodeCoverageUrlForBuild(build: MainBuildsInfo): string {
+    return this.getProjectApisUrl(build.definition.project) + "test/CodeCoverage?buildId=" + build.last.id.toString();
   }
 
 }
+
+

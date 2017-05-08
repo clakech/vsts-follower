@@ -1,8 +1,10 @@
+import { BuildInfo, Coverage, TestResult } from '../test-result';
 
 export class MainBuildsInfo {
     public definition: VstsBuildDefinition;
     public last: VstsBuild;
-
+    public testResult: TestResult = new TestResult();
+    
     constructor(buildDefinition: VstsBuildDefinition) {
         this.definition = buildDefinition;
     }
