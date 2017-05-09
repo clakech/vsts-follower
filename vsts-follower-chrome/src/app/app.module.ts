@@ -10,11 +10,13 @@ import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '@angular/material';
 import { NgModule } from '@angular/core';
 import { ProfileModule } from './profile/profile.module';
-import { VstsModule } from './vsts/vsts.module';
-import { VstsProjectsComponent } from './vsts-projects/vsts-projects.component';
-import { VstsBuildCardComponent } from './vsts-build-card/vsts-build-card.component';
-import { VstsProjectComponent } from './vsts-project/vsts-project.component';
 import { QualityIndicatorComponent } from './quality-indicator/quality-indicator.component';
+import { SelectedBuildsModule } from './selected-builds/selected-builds.module';
+import { VstsBuildCardComponent } from './vsts-build-card/vsts-build-card.component';
+import { VstsModule } from './vsts/vsts.module';
+import { VstsProjectComponent } from './vsts-project/vsts-project.component';
+import { VstsProjectsComponent } from './vsts-projects/vsts-projects.component';
+import { OrderByPipe } from './order-by.pipe';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,8 @@ import { QualityIndicatorComponent } from './quality-indicator/quality-indicator
     VstsProjectsComponent,
     VstsBuildCardComponent,
     VstsProjectComponent,
-    QualityIndicatorComponent
+    QualityIndicatorComponent,
+    OrderByPipe
   ],
   imports: [
     BrowserModule,
@@ -33,7 +36,8 @@ import { QualityIndicatorComponent } from './quality-indicator/quality-indicator
     MaterialModule,
     BrowserAnimationsModule,
     ProfileModule,
-    VstsModule
+    VstsModule,
+    SelectedBuildsModule
   ],
   bootstrap: [
     AppComponent
