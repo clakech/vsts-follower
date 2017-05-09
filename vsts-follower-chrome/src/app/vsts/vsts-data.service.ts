@@ -11,6 +11,7 @@ import 'rxjs/add/operator/merge';
 import { BuildInfo, Coverage, TestResult } from '../test-result';
 import { FullProject, MainBuildsInfo, VstsBuild, VstsBuildDefinition, VstsProject, VstsProjectList } from './vsts-project';
 import { Headers, Http, RequestOptions, Response } from '@angular/http';
+import { SelectedBuild, SelectedBuildsService } from '../selected-builds/selected-builds.service';
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
@@ -30,7 +31,7 @@ export class VstsDataService {
 
   public vstsProjectList: Observable<Array<FullProject>>;
 
-  constructor(public profileService: ProfileService, public http: Http) {
+  constructor(public profileService: ProfileService, public http: Http, public selectedBuildService: SelectedBuildsService) {
     this.projects = new Observable<VstsProjectList>(e => this.emitter = e);
     this.isBusy = new Observable<boolean>(e => this.busyEmitter = e);
     //this.vstsProjectList = new Observable<Array<FullProject>>(e => this.busyEmitter = e);
@@ -59,6 +60,15 @@ export class VstsDataService {
       .timeout(6000)*/;
   }
 
+  toogleSelection(build: MainBuildsInfo) {
+    if (build) {
+      const selection = new SelectedBuild(build.definition.project.id, build.definition.id);
+      this.selectedBuildService.toggleSelectedBuild(selection);
+    }
+  }
+
+
+
   initiateProjects(emitter) {
     this.busyEmitter.next(true);
     let projects: Array<FullProject> = new Array<FullProject>();
@@ -79,14 +89,15 @@ export class VstsDataService {
   }
 
   supplyProjectsWithBuilds(projects: Array<FullProject>, buildGroups: Array<MainBuildsInfo[]>) {
+    const selection = this.selectedBuildService.getSelectedBuilds();
     projects.forEach(project => {
       buildGroups.forEach(buildArray => {
-        this.supplyProjectWithBuilds(project, buildArray);
+        this.supplyProjectWithBuilds(project, buildArray, selection);
       });
     });
   }
 
-  supplyProjectWithBuilds(project: FullProject, buildArray: MainBuildsInfo[]) {
+  supplyProjectWithBuilds(project: FullProject, buildArray: MainBuildsInfo[], selectedBuilds?: Array<SelectedBuild>) {
     if (buildArray.length > 0 && buildArray[0].definition.project.id === project.project.id) {
       this.addBuildsOnFullProject(project, buildArray.sort((a, b) => {
         if (a.definition.name < b.definition.name)
@@ -94,13 +105,21 @@ export class VstsDataService {
         if (a.definition.name > b.definition.name)
           return 1;
         return 0;
-      }));
+      }), selectedBuilds);
     }
   }
 
-  addBuildsOnFullProject(project: FullProject, builds: MainBuildsInfo[]) {
+  addBuildsOnFullProject(project: FullProject, builds: MainBuildsInfo[], selectedBuilds?: Array<SelectedBuild>) {
     project.builds = new Array<MainBuildsInfo>();
     builds.forEach(build => {
+      if (selectedBuilds)
+      {
+        const selectedIndex = selectedBuilds.findIndex(element => {
+          return (element.projectGuid === project.project.id && element.buildDefinitionId === build.definition.id);
+        });
+
+        build.selected = (selectedIndex > -1);
+      }
       project.builds.push(build);
     })
   }
@@ -155,8 +174,6 @@ export class VstsDataService {
       });
     }
   }
-
-
 
   getBuildByDefinition(definition: VstsBuildDefinition): Observable<MainBuildsInfo> {
     return this.getLastBuildsForDefinition(definition, 10).map(builds => {

@@ -5,23 +5,21 @@
     </md-grid-tile>
   </md-grid-list>
 </md-card>-->
-<md-card>
+<md-card *ngIf="buildMode">
   <h1>{{ build.definition.name }}</h1>
   <md-grid-list cols="6" rowHeight="40px">
-    <md-grid-tile colspan="4" [style.background]="getBuildColor()" *ngIf="build.last">
+    <md-grid-tile colspan="4" [style.background]="getBuildColor(build.last)" *ngIf="build.last">
       <h2>{{ build.last.buildNumber }} ({{ build.last.reason }})</h2><br />
     </md-grid-tile>
     <md-grid-tile colspan="4" [style.background]="getDefaultColor()" *ngIf="!build.last">
       <h2>No build</h2><br />
     </md-grid-tile>
-    <md-grid-tile colspan="2" rowspan="2" [style.background]="testColor" >
+    <md-grid-tile colspan="2" rowspan="2" [style.background]="testColor">
       <div>
         Unit Tests<br />
         <ul *ngIf="testResult.totalTests > 0">
           <li>
-            Tests :       <span style="color: green"><b>{{ testResult.passedTests }}</b></span>
-            &nbsp;/&nbsp; <span style="color: red"><b>{{ testResult.failedTests }}</b></span>
-            &nbsp;/&nbsp; <span><b>{{ testResult.totalTests }}</b></span>
+            Tests : <span style="color: green"><b>{{ testResult.passedTests }}</b></span> &nbsp;/&nbsp; <span style="color: red"><b>{{ testResult.failedTests }}</b></span>            &nbsp;/&nbsp; <span><b>{{ testResult.totalTests }}</b></span>
           </li>
           <li *ngFor="let coverage of calculatedCoverages">
             <span>{{ coverage }}</span>
@@ -31,6 +29,22 @@
     </md-grid-tile>
     <md-grid-tile *ngFor="let indicator of indicators" [style.background]="indicator.color">
       <follow-quality-indicator [indicatorName]="indicator.name" [indicatorValue]="indicator.value"></follow-quality-indicator>
+    </md-grid-tile>
+  </md-grid-list>
+</md-card>
+
+<md-card *ngIf="!buildMode">
+  <h1>{{ project.project.name }}</h1>
+  <md-grid-list cols="6" rowHeight="40px">
+    <md-grid-tile *ngFor="let tile of project.builds" [colspan]="6" [style.background]="getBuildColor(tile.last)">
+      <table style="width:100%">
+        <tr>
+          <td style="width: 50px"><md-slide-toggle (change)="changeSelection(tile)" color="primary" [checked]="tile.selected"></md-slide-toggle></td>
+          <td style="text-align: left">
+            <div><h2>{{ tile.definition.name }}</h2></div>
+          </td>
+        </tr>
+      </table>
     </md-grid-tile>
   </md-grid-list>
 </md-card>

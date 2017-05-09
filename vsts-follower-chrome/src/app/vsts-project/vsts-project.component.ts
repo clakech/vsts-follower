@@ -14,10 +14,15 @@ import { VstsDataService } from '../vsts/vsts-data.service';
 })
 export class VstsProjectComponent implements OnInit {
   @Input() project: FullProject = new FullProject(new VstsProject());
+  @Input() projects: Array<FullProject> = new Array<FullProject>();
 
   constructor(public vstsDataService: VstsDataService) { }
 
   ngOnInit() {
+  }
+
+  singleProjectMode(): boolean {
+    return (!this.projects || this.projects.length === 0);
   }
 
 }

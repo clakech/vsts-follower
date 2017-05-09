@@ -15,6 +15,7 @@ import { VstsDataService } from '../vsts/vsts-data.service';
 })
 export class VstsProjectsComponent implements OnInit {
   public projects: FullProject[];
+  public dynh: boolean = true;
 
   constructor(public vstsDataService: VstsDataService) {
   }

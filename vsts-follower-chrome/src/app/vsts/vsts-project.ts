@@ -4,6 +4,7 @@ export class MainBuildsInfo {
     public definition: VstsBuildDefinition;
     public last: VstsBuild;
     public testResult: TestResult = new TestResult();
+    public selected: boolean = false;
     
     constructor(buildDefinition: VstsBuildDefinition) {
         this.definition = buildDefinition;

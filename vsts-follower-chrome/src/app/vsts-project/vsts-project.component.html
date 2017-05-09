@@ -1,6 +1,14 @@
 
-<md-grid-list cols="1" rowHeight="4:1">
+<md-grid-list cols="1" rowHeight="4:1" *ngIf="singleProjectMode()">
   <md-grid-tile *ngFor="let build of project.builds">
     <follow-vsts-build-card [build]="build"></follow-vsts-build-card>
   </md-grid-tile>
 </md-grid-list>
+
+<!--<md-grid-list cols="1" *ngIf="!singleProjectMode()">
+  <md-grid-tile *ngFor="let prj of projects">
+    <follow-vsts-build-card [project]="prj"></follow-vsts-build-card>
+  </md-grid-tile>
+</md-grid-list>-->
+
+<follow-vsts-build-card *ngFor="let prj of projects" [project]="prj"></follow-vsts-build-card>
