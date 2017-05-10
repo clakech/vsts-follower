@@ -333,6 +333,35 @@ export class VstsDataService {
       });
   }
 
+  getTestCoverageForDefinitionGroup(builds: MainBuildsInfo[]): Observable<Array<MainBuildsInfo>> {
+    let batch = new Array<Observable<MainBuildsInfo>>();
+    builds.forEach(build => {
+      batch.push(this.getTestCoverageForMainBuild(build));
+    });
+    return Observable.forkJoin(batch);
+  }
+
+  getTestCoverageForMainBuild(build: MainBuildsInfo): Observable<MainBuildsInfo> {
+    if (build.last) {
+      return this.getTestCoverageForBuild(build).map(result => {
+        let newBuild = new MainBuildsInfo(build.definition);
+        newBuild.last = build.last;
+        newBuild.testResult = build.testResult;
+        newBuild.testResult.coverageStats = result;
+        return newBuild;
+      });
+    } else {
+      return new Observable<MainBuildsInfo>(e => {
+        let newBuild = new MainBuildsInfo(build.definition);
+        newBuild.testResult = new TestResult();
+        e.next(newBuild);
+      }).map(result => {
+        return result;
+      });
+    }
+  }
+
+
   getTestCoverageForBuild(build: MainBuildsInfo): Observable<Array<Coverage>> {
     return this.launchGetForUrl(this.getCodeCoverageUrlForBuild(build))
       .map(response => {

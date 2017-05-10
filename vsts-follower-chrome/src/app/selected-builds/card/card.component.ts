@@ -5,6 +5,12 @@ class QualityIndicator {
   public name: string;
   public value: string;
   public color: string;
+
+  constructor(name?: string, value?: string, color?: string) {
+    this.name = name;
+    this.value = value;
+    this.color = color;
+  }
 }
 
 @Component({
@@ -20,22 +26,59 @@ export class CardComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    let curent = new QualityIndicator();
-    curent.color = "crimson";
-    curent.name = "Failed tests";
-    curent.value = "5";
-    this.indicators.push(curent);
-    curent = new QualityIndicator();
-    curent.color = "goldenrod";
-    curent.name = "Test Coverage";
-    curent.value = "79 %";
-    this.indicators.push(curent);
+    console.log(this.build);
+    this.setBuildIndicators();
     this.setSonarNullInformations();
-    curent = new QualityIndicator();
-    curent.color = "goldenrod";
-    curent.name = "Ignore tests";
-    curent.value = "5";
-    this.indicators.push(curent);
+  }
+
+  setBuildIndicators() {
+    if (this.build.testResult && this.build.testResult.totalTests > 0) {
+      this.indicators.push(
+          new QualityIndicator(
+            "Total Tests",
+            this.build.testResult.totalTests.toString(),
+            "gainsboro"
+          ));
+      if (this.build.testResult.failedTests > 0) {
+        this.indicators.push(
+          new QualityIndicator(
+            "Failed Tests",
+            this.build.testResult.failedTests.toString(),
+            "crimson"
+          ));
+      }
+      if (this.build.testResult.ignoredTests > 0) {
+        this.indicators.push(
+          new QualityIndicator(
+            "Ignored Tests",
+            this.build.testResult.ignoredTests.toString(),
+            "goldenrod"
+          ));
+      }
+      if (this.build.testResult.coverageStats && this.build.testResult.coverageStats.length > 0) {
+        this.build.testResult.coverageStats.forEach(stat => {
+          let cov = Math.round((stat.covered / stat.total) * 100);
+          let color = "gainsboro";
+          if (cov >= 99) {
+            color= "limegreen";
+          } else if (cov >= 80) {
+            color = "lightgreen";
+          } else if (cov >= 65) {
+            color = "khaki";
+          } else if (cov >= 50) {
+            color = "goldenrod";
+          } else {
+            color = "crimson";
+          }
+          this.indicators.push(
+          new QualityIndicator(
+            stat.label + " Cover",
+            cov.toString() + " %",
+            color
+          ));
+        });
+      }
+    }
   }
 
   getDefaultColor() {

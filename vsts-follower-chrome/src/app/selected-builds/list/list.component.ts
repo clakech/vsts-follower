@@ -31,7 +31,15 @@ export class ListComponent implements OnInit {
         let selectedDefinitions = allDefinitions
               .filter(definition => this.isDefinitionSelected(definition))
               .sort((a, b) => (a.project.name + a.name).localeCompare(b.project.name + b.name));
-        this.vstsDataService.getBuildsForDefinitionGroup(selectedDefinitions).subscribe(buildInfos => this.selectedBuilds = buildInfos);
+        this.vstsDataService.getBuildsForDefinitionGroup(selectedDefinitions).subscribe(buildInfos => {
+          this.selectedBuilds = buildInfos;
+          this.vstsDataService.getTestResultsForDefinitionGroup(buildInfos).subscribe(buildsWithTests => {
+            this.selectedBuilds = buildsWithTests;
+            this.vstsDataService.getTestCoverageForDefinitionGroup(buildsWithTests).subscribe(buildsWithCoverages => {
+                this.selectedBuilds = buildsWithCoverages;
+              });
+          });
+        });
       });
     });
   }
