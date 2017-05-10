@@ -1,0 +1,15 @@
+<md-grid-tile [colspan]="colspan" [rowspan]="rowspan" [style.background]="backgroundColor">
+  <table style="width:100%">
+    <tr>
+      <td style="width: 50px">
+        <span>
+          <b>{{ title }}</b>
+        </span>
+      </td>
+    </tr><tr>
+      <td style="text-align: left">
+        <ng-content></ng-content>
+      </td>
+    </tr>
+  </table>
+</md-grid-tile>
