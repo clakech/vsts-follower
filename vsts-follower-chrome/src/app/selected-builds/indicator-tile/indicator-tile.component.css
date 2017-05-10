@@ -1,0 +1,13 @@
+table tr td {
+    text-align: center;
+    font-size: 10pt;
+    height: 10px;
+    margin: 0px;
+    padding: 0px;
+    line-height: 0pt;
+    vertical-align: bottom;
+}
+
+a2 {
+  line-height: -4pt;
+}

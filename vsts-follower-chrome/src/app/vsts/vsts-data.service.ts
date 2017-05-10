@@ -17,6 +17,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
 import { ProfileCredentials } from '../profile/profile-credentials';
 import { ProfileService } from '../profile/profile.service';
+import { Subscriber } from 'rxjs/Subscriber';
 
 @Injectable()
 export class VstsDataService {
@@ -25,17 +26,16 @@ export class VstsDataService {
   private requestOptions: RequestOptions;
   private profile: ProfileCredentials;
   public projects: Observable<VstsProjectList>;
-  public emitter: any;
+  public emitter: Subscriber<VstsProjectList>;
   public isBusy: Observable<boolean>;
-  public busyEmitter: any;
+  public busyEmitter: Subscriber<boolean>;
 
   public vstsProjectList: Observable<Array<FullProject>>;
 
   constructor(public profileService: ProfileService, public http: Http, public selectedBuildService: SelectedBuildsService) {
     this.projects = new Observable<VstsProjectList>(e => this.emitter = e);
     this.isBusy = new Observable<boolean>(e => this.busyEmitter = e);
-    //this.vstsProjectList = new Observable<Array<FullProject>>(e => this.busyEmitter = e);
-    this.vstsProjectList = Observable.create(observer => {
+    this.vstsProjectList = new Observable<Array<FullProject>>(observer => {
       setTimeout(() => {
         this.initiateProjects(observer);
       });
@@ -88,6 +88,8 @@ export class VstsDataService {
     });
   }
 
+
+
   supplyProjectsWithBuilds(projects: Array<FullProject>, buildGroups: Array<MainBuildsInfo[]>) {
     const selection = this.selectedBuildService.getSelectedBuilds();
     projects.forEach(project => {
@@ -99,21 +101,14 @@ export class VstsDataService {
 
   supplyProjectWithBuilds(project: FullProject, buildArray: MainBuildsInfo[], selectedBuilds?: Array<SelectedBuild>) {
     if (buildArray.length > 0 && buildArray[0].definition.project.id === project.project.id) {
-      this.addBuildsOnFullProject(project, buildArray.sort((a, b) => {
-        if (a.definition.name < b.definition.name)
-          return -1;
-        if (a.definition.name > b.definition.name)
-          return 1;
-        return 0;
-      }), selectedBuilds);
+      this.addBuildsOnFullProject(project, buildArray.sort((a, b) => a.definition.name.localeCompare(b.definition.name)), selectedBuilds);
     }
   }
 
   addBuildsOnFullProject(project: FullProject, builds: MainBuildsInfo[], selectedBuilds?: Array<SelectedBuild>) {
     project.builds = new Array<MainBuildsInfo>();
     builds.forEach(build => {
-      if (selectedBuilds)
-      {
+      if (selectedBuilds) {
         const selectedIndex = selectedBuilds.findIndex(element => {
           return (element.projectGuid === project.project.id && element.buildDefinitionId === build.definition.id);
         });
@@ -181,13 +176,7 @@ export class VstsDataService {
       newBuild.last = builds.filter(build => {
         //return build.reason === "schedule" || build.reason === "manual" || build.reason === "triggered" || build.re
         return build.reason !== "validateShelveset";
-      }).sort((a, b) => {
-        if (a.startTime > b.startTime)
-          return -1;
-        if (a.startTime < b.startTime)
-          return 1;
-        return 0;
-      })[0];
+      }).sort((a, b) => b.startTime.getTime() - a.startTime.getTime())[0];
       return newBuild;
     });
   }
@@ -205,13 +194,7 @@ export class VstsDataService {
       .map((resp) => {
         let newValue = new VstsProjectList(resp.text());
         this.emitter.next(newValue);
-        return newValue.value.sort((a, b) => {
-          if (a.name < b.name)
-            return -1;
-          if (a.name > b.name)
-            return 1;
-          return 0;
-        });
+        return newValue.value.sort((a, b) => a.name.localeCompare(b.name));
       });
   }
 
@@ -235,6 +218,8 @@ export class VstsDataService {
             definition.id = buildDefinition.id;
             definition.name = buildDefinition.name;
             definition.project = project;
+            definition.project.name = buildDefinition.project.name;
+            definition.project.url = buildDefinition.project.url;
             list.push(definition);
           });
         } catch (error) {
@@ -347,6 +332,35 @@ export class VstsDataService {
           });*/
       });
   }
+
+  getTestCoverageForDefinitionGroup(builds: MainBuildsInfo[]): Observable<Array<MainBuildsInfo>> {
+    let batch = new Array<Observable<MainBuildsInfo>>();
+    builds.forEach(build => {
+      batch.push(this.getTestCoverageForMainBuild(build));
+    });
+    return Observable.forkJoin(batch);
+  }
+
+  getTestCoverageForMainBuild(build: MainBuildsInfo): Observable<MainBuildsInfo> {
+    if (build.last) {
+      return this.getTestCoverageForBuild(build).map(result => {
+        let newBuild = new MainBuildsInfo(build.definition);
+        newBuild.last = build.last;
+        newBuild.testResult = build.testResult;
+        newBuild.testResult.coverageStats = result;
+        return newBuild;
+      });
+    } else {
+      return new Observable<MainBuildsInfo>(e => {
+        let newBuild = new MainBuildsInfo(build.definition);
+        newBuild.testResult = new TestResult();
+        e.next(newBuild);
+      }).map(result => {
+        return result;
+      });
+    }
+  }
+
 
   getTestCoverageForBuild(build: MainBuildsInfo): Observable<Array<Coverage>> {
     return this.launchGetForUrl(this.getCodeCoverageUrlForBuild(build))
