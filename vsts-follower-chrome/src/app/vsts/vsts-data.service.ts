@@ -19,6 +19,8 @@ import { ProfileCredentials } from '../profile/profile-credentials';
 import { ProfileService } from '../profile/profile.service';
 import { Subscriber } from 'rxjs/Subscriber';
 
+const SonarQubeScannerMsBuildEnd = "6d01813a-9589-4b15-8491-8164aeb38055";
+
 @Injectable()
 export class VstsDataService {
 
@@ -65,6 +67,134 @@ export class VstsDataService {
       const selection = new SelectedBuild(build.definition.project.id, build.definition.id);
       this.selectedBuildService.toggleSelectedBuild(selection);
     }
+  }
+
+  getTaskId(build: MainBuildsInfo, planId: string, timelineId: string): Observable<string> {
+    let sub = new Subscriber<string>();
+    let obs = new Observable<string>(e => { sub = e; });
+    this.getRecords(build, planId, timelineId).subscribe(records => {
+      let logResult = this.getLog(records);
+      if (logResult) {
+        logResult.subscribe(log => {
+          sub.next(log);
+          sub.complete();
+        });
+      }
+    });
+    return obs;
+  }
+
+  getLogUrlForSonar(records): string {
+    let filteredRecords = records.filter(record => {
+      return (record.task && record.task.id === SonarQubeScannerMsBuildEnd && record.log);
+    });
+    if (filteredRecords && filteredRecords.length > 0) {
+      return filteredRecords[0].log.location;
+    } else {
+      return null;
+    }
+  }
+
+  getLog(logs) {
+    let filteredLines = logs.value.filter(record => {
+      return (record.task && record.task.id === SonarQubeScannerMsBuildEnd && record.state === "completed" && record.log && record.log.length > 0);
+    });
+
+    if (filteredLines && filteredLines.length > 0) {
+      return this.getLogs(filteredLines[0]).map(result => {
+        return result;
+      });
+    } else {
+      return null;
+    }
+  }
+
+  getLogs(sonarEndBuildTask): Observable<string> {
+    return this.launchGetForUrl(sonarEndBuildTask.logs[0]).map(result => {
+      return JSON.parse(result.text()).value.filter(line => {
+        return line.lastIndexOf("More about the report processing at ") > -1;
+      })[0].split(" ").replace('",', '');
+    });
+  }
+
+  getSonarTaskUri(logUri: string): Observable<string> {
+    return this.launchGetForUrl(logUri).map(result => {
+      let logs: Array<string> = JSON.parse(result.text()).value
+      let filteredLog = logs.filter(line => {
+        let ln = "" + line;
+        return ln.indexOf("More about the report processing at ") > -1;
+      })[0].split(" ");      
+      return filteredLog[filteredLog.length-1].replace('",', '');
+    });
+  }
+
+  getSonarKey(logUri: string): Observable<string> {
+    return this.launchGetForUrl(logUri).map(result => {
+      let logs: Array<string> = JSON.parse(result.text()).value
+      let filteredLog = logs.filter(line => {
+        let ln = "" + line;
+        return ln.indexOf("ANALYSIS SUCCESSFUL, you can browse ") > -1;
+      })[0].split("/");      
+      return filteredLog[filteredLog.length-1];
+    });
+  }
+
+  getBuildsWithPlanId(build: MainBuildsInfo): Observable<MainBuildsInfo> {
+    return this.launchGetForUrl(this.getBuildDetailsUrl(build)).map(buildResp => {
+      let response = JSON.parse(buildResp.text());
+      let result = build;
+      if (response.plans && response.plans.length > 0) {
+        result.last.planId = response.plans[0].planId;
+      }
+      return result;
+    });
+  }
+
+  getBuildsWithSonarUriBatch(builds: MainBuildsInfo[]): Observable<Array<MainBuildsInfo>> {
+    let batch = new Array<Observable<MainBuildsInfo>>();
+    builds.forEach(build => {
+      batch.push(this.getBuildsWithPlanId(build));
+    });
+    return Observable.forkJoin(batch);
+  }
+
+  getPlan(build: MainBuildsInfo, planId: string) {
+    return this.launchGetForUrl(this.getPlanUrl(build, planId)).map(buildResp => {
+      let timelines = JSON.parse(buildResp.text()).value;
+      if (timelines.length > 1) {
+        return timelines[0].id;
+      } else {
+        return null;
+      }
+    });
+  }
+
+  getRecords(build: MainBuildsInfo, planId: string, timelineId: string) {
+    return this.launchGetForUrl(this.getRecordsUrl(build, planId, timelineId)).map(buildResp => {
+      return JSON.parse(buildResp.text()).value;
+    });
+  }
+
+
+  getBuildDetailsUrl(build: MainBuildsInfo) {
+    return this.getProjectApisUrl(build.definition.project) + "build/builds/" + build.last.id + "?api-version=3.0-preview";
+  }
+
+  getPlanUrl(build: MainBuildsInfo, planId: string) {
+    return this.getProjectApisUrl(build.definition.project) + "distributedtask/hubs/Build/plans/" + planId + "/timelines";
+  }
+
+  getRecordsUrl(build: MainBuildsInfo, planId: string, timelineId: string) {
+    return this.getProjectApisUrl(build.definition.project) + "distributedtask/hubs/Build/plans/" + planId + "/timelines/" + timelineId + "/records";
+  }
+
+  getProjectsList(): Observable<Array<VstsProject>> {
+    return this.launchGetForUrl(this.getProjectsApiUrl())
+      .map((resp) => {
+        let newValue = new VstsProjectList(resp.text());
+        this.emitter.next(newValue);
+        return newValue.value.sort((a, b) => a.name.localeCompare(b.name));
+      });
   }
 
 
@@ -187,15 +317,6 @@ export class VstsDataService {
       batch.push(this.getBuildDefinitionsForProject(project.project));
     });
     return Observable.forkJoin(batch);
-  }
-
-  getProjectsList(): Observable<Array<VstsProject>> {
-    return this.launchGetForUrl(this.getProjectsApiUrl())
-      .map((resp) => {
-        let newValue = new VstsProjectList(resp.text());
-        this.emitter.next(newValue);
-        return newValue.value.sort((a, b) => a.name.localeCompare(b.name));
-      });
   }
 
   getProjects(): Observable<VstsProjectList> {

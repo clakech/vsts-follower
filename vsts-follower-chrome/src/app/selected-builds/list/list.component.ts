@@ -15,7 +15,6 @@ import { VstsDataService } from '../../vsts/vsts-data.service';
 export class ListComponent implements OnInit {
 
   public selectedBuilds: Array<MainBuildsInfo> = new Array<MainBuildsInfo>();
-  private 
 
   constructor(public selectedBuildService: SelectedBuildsService, public vstsDataService: VstsDataService) { }
 
@@ -29,15 +28,33 @@ export class ListComponent implements OnInit {
       this.vstsDataService.getDefinitionsBatch(projects).subscribe(definitions => {
         let allDefinitions: VstsBuildDefinition[] = [].concat(...definitions);
         let selectedDefinitions = allDefinitions
-              .filter(definition => this.isDefinitionSelected(definition))
-              .sort((a, b) => (a.project.name + a.name).localeCompare(b.project.name + b.name));
+          .filter(definition => this.isDefinitionSelected(definition))
+          .sort((a, b) => (a.project.name + a.name).localeCompare(b.project.name + b.name));
         this.vstsDataService.getBuildsForDefinitionGroup(selectedDefinitions).subscribe(buildInfos => {
           this.selectedBuilds = buildInfos;
           this.vstsDataService.getTestResultsForDefinitionGroup(buildInfos).subscribe(buildsWithTests => {
             this.selectedBuilds = buildsWithTests;
             this.vstsDataService.getTestCoverageForDefinitionGroup(buildsWithTests).subscribe(buildsWithCoverages => {
-                this.selectedBuilds = buildsWithCoverages;
+              this.selectedBuilds = buildsWithCoverages;
+              this.selectedBuilds.forEach(selectedBuild => {
+                this.vstsDataService.getBuildsWithPlanId(selectedBuild).subscribe(build => {
+                  selectedBuild.last.planId = build.last.planId;
+                  this.vstsDataService.getPlan(selectedBuild, build.last.planId).subscribe(recordId => {
+                    if (recordId) {
+                      this.vstsDataService.getRecords(selectedBuild, build.last.planId, recordId).subscribe(record => {
+                        let logUri = this.vstsDataService.getLogUrlForSonar(record);
+                        if (logUri) {
+                          this.vstsDataService.getSonarKey(logUri).subscribe(result => {
+                            console.log(result);
+                            selectedBuild.last.sonarKey = result;
+                          });
+                        }
+                      });
+                    }
+                  });
+                })
               });
+            });
           });
         });
       });

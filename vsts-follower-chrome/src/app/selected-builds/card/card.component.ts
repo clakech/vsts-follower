@@ -26,7 +26,7 @@ export class CardComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-    console.log(this.build);
+    //console.log(this.build);
     this.setBuildIndicators();
     this.setSonarNullInformations();
   }

@@ -24,7 +24,6 @@ export class VstsBuildDefinition {
     public project: VstsProject;
     public id: number;
     public name: string;
-    public sonarKey: string;
 }
 
 export class VstsBuild {
@@ -35,8 +34,11 @@ export class VstsBuild {
     public finishTime: Date;
     public result: string;
     public reason: string;
+    public sonarTaskUrl: string;
+    public sonarKey: string;
+    public buildURl: string;
+    public planId: string;
 }
-
 
 export class VstsProject {
     public id: string;
