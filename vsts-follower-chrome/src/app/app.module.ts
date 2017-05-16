@@ -9,14 +9,15 @@ import { BrowserModule } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { MaterialModule } from '@angular/material';
 import { NgModule } from '@angular/core';
+import { OrderByPipe } from './order-by.pipe';
 import { ProfileModule } from './profile/profile.module';
 import { QualityIndicatorComponent } from './quality-indicator/quality-indicator.component';
 import { SelectedBuildsModule } from './selected-builds/selected-builds.module';
+import { SonarModule } from './sonar/sonar.module';
 import { VstsBuildCardComponent } from './vsts-build-card/vsts-build-card.component';
 import { VstsModule } from './vsts/vsts.module';
 import { VstsProjectComponent } from './vsts-project/vsts-project.component';
 import { VstsProjectsComponent } from './vsts-projects/vsts-projects.component';
-import { OrderByPipe } from './order-by.pipe';
 
 @NgModule({
   declarations: [
@@ -37,7 +38,8 @@ import { OrderByPipe } from './order-by.pipe';
     BrowserAnimationsModule,
     ProfileModule,
     VstsModule,
-    SelectedBuildsModule
+    SelectedBuildsModule,
+    SonarModule
   ],
   bootstrap: [
     AppComponent
