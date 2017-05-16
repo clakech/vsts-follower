@@ -1,6 +1,22 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import 'hammerjs';
 
+import { ComponentFixture, TestBed, async } from '@angular/core/testing';
+import { MaterialModule, MdDialog } from '@angular/material';
+
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { CardComponent } from './card.component';
+import { FormsModule } from '@angular/forms';
+import {NgModule} from '@angular/core';
+
+@NgModule({
+  declarations: [],
+  imports: [MaterialModule, FormsModule, BrowserAnimationsModule],
+  entryComponents: [],
+  exports: [],
+  providers: []
+})
+class TestModule { }
+
 
 describe('CardComponent', () => {
   let component: CardComponent;
@@ -8,7 +24,8 @@ describe('CardComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ CardComponent ]
+      declarations: [ CardComponent ],
+      imports: [TestModule]
     })
     .compileComponents();
   }));
