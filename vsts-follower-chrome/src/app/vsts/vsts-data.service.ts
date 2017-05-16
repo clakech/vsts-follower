@@ -200,6 +200,9 @@ export class VstsDataService {
 
 
   initiateProjects(emitter) {
+    while (!this.profile) {
+      setTimeout(()=>{}, 1000);
+    }
     this.busyEmitter.next(true);
     let projects: Array<FullProject> = new Array<FullProject>();
     this.getProjectsList().subscribe(projectReturnedList => {

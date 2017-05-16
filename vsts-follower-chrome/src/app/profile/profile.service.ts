@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ProfileCredentials } from './profile-credentials';
 
-export type ProfileType = "sonar" | "vsts" | "";
+export type ProfileType = "sonarqube" | "vsts" | "";
 
 @Injectable()
 export class ProfileService {
