@@ -35,6 +35,7 @@ export class VstsBuild {
     public result: string;
     public reason: string;
     public sonarTaskUrl: string;
+    public sonarKey: string;
     public buildURl: string;
     public planId: string;
 }

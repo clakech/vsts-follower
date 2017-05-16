@@ -44,8 +44,9 @@ export class ListComponent implements OnInit {
                       this.vstsDataService.getRecords(selectedBuild, build.last.planId, recordId).subscribe(record => {
                         let logUri = this.vstsDataService.getLogUrlForSonar(record);
                         if (logUri) {
-                          this.vstsDataService.getSonarTaskUri(logUri).subscribe(result => {
-                            selectedBuild.last.sonarTaskUrl = result;
+                          this.vstsDataService.getSonarKey(logUri).subscribe(result => {
+                            console.log(result);
+                            selectedBuild.last.sonarKey = result;
                           });
                         }
                       });

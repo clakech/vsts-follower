@@ -118,7 +118,6 @@ export class VstsDataService {
   }
 
   getSonarTaskUri(logUri: string): Observable<string> {
-    console.log(logUri);
     return this.launchGetForUrl(logUri).map(result => {
       let logs: Array<string> = JSON.parse(result.text()).value
       let filteredLog = logs.filter(line => {
@@ -126,6 +125,17 @@ export class VstsDataService {
         return ln.indexOf("More about the report processing at ") > -1;
       })[0].split(" ");      
       return filteredLog[filteredLog.length-1].replace('",', '');
+    });
+  }
+
+  getSonarKey(logUri: string): Observable<string> {
+    return this.launchGetForUrl(logUri).map(result => {
+      let logs: Array<string> = JSON.parse(result.text()).value
+      let filteredLog = logs.filter(line => {
+        let ln = "" + line;
+        return ln.indexOf("ANALYSIS SUCCESSFUL, you can browse ") > -1;
+      })[0].split("/");      
+      return filteredLog[filteredLog.length-1];
     });
   }
 
