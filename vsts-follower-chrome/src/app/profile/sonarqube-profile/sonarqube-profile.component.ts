@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import {MdDialog} from '@angular/material';
+
 import {LoginDialogComponent} from '../login-dialog/login-dialog.component';
+import {MdDialog} from '@angular/material';
+import { ProfileService } from '../profile.service';
 
 @Component({
   selector: 'follow-sonarqube-profile',
@@ -9,9 +11,19 @@ import {LoginDialogComponent} from '../login-dialog/login-dialog.component';
 })
 export class SonarqubeProfileComponent implements OnInit {
 
-  constructor(public dialog: MdDialog) { }
+  public buttonLabel: string = "Connect SonarQube";
+
+  constructor(public dialog: MdDialog, private profileService: ProfileService) { }
 
   ngOnInit() {
+    this.profileService.profilesInitiated.subscribe(profiles => {
+      if (profiles.lastIndexOf("sonarqube") > -1) {
+        this.buttonLabel = "SonarQube";
+      } else {
+        this.buttonLabel = "Connect SonarQube";
+      }
+    });
+    this.profileService.getProfile("sonarqube");
   }
 
   openDialog() {

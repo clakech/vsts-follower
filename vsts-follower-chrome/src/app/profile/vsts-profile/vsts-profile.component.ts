@@ -30,13 +30,7 @@ export class VstsProfileComponent implements OnInit {
   }
 
   ngOnInit() {
-    /*this.vstsDataService.getProjects().map(list => {
-      this.buttonLabel = (list.count === 0) ? 'Connect VSTS' : 'Connected (' + list.count + ' prj)';
-    });
-    this.projects = this.vstsDataService.getProjects();
-    this.projects.subscribe(list => {
-        this.buttonLabel = (list.count === 0) ? 'Connect VSTS' : 'Connected (' + list.count + ' prj)';
-    });*/
+    
     this.vstsDataService.projects.subscribe(list => {
       this.buttonLabel = (list.count === 0) ? 'Connect VSTS' : 'Connected (' + list.count + ' prj)';
     });

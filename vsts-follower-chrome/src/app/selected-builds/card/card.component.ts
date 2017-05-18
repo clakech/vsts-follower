@@ -85,7 +85,7 @@ export class CardComponent implements OnInit, OnChanges {
         } else {
           this.indicators.push(
             <QualityIndicator>{
-              name: measure.metric.split("_")[0],
+              name: measure.metric.replace("_", " "),
               value: measure.value,
               color: this.getColorByNote(measure.value)
             }
