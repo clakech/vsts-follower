@@ -39,7 +39,13 @@ export class VstsDataService {
     this.isBusy = new Observable<boolean>(e => this.busyEmitter = e);
     this.vstsProjectList = new Observable<Array<FullProject>>(observer => {
       setTimeout(() => {
-        this.initiateProjects(observer);
+        let projectsCount = 0;
+        this.projects.subscribe(projects => {
+          if (projects.count > 0) {
+            this.initiateProjects(observer);
+          }
+        });
+
       });
     });
   }
@@ -123,8 +129,8 @@ export class VstsDataService {
       let filteredLog = logs.filter(line => {
         let ln = "" + line;
         return ln.indexOf("More about the report processing at ") > -1;
-      })[0].split(" ");      
-      return filteredLog[filteredLog.length-1].replace('",', '');
+      })[0].split(" ");
+      return filteredLog[filteredLog.length - 1].replace('",', '');
     });
   }
 
@@ -134,8 +140,8 @@ export class VstsDataService {
       let filteredLog = logs.filter(line => {
         let ln = "" + line;
         return ln.indexOf("ANALYSIS SUCCESSFUL, you can browse ") > -1;
-      })[0].split("/");      
-      return filteredLog[filteredLog.length-1];
+      })[0].split("/");
+      return filteredLog[filteredLog.length - 1];
     });
   }
 
@@ -192,7 +198,6 @@ export class VstsDataService {
     return this.launchGetForUrl(this.getProjectsApiUrl())
       .map((resp) => {
         let newValue = new VstsProjectList(resp.text());
-        this.emitter.next(newValue);
         return newValue.value.sort((a, b) => a.name.localeCompare(b.name));
       });
   }
@@ -200,9 +205,6 @@ export class VstsDataService {
 
 
   initiateProjects(emitter) {
-    while (!this.profile) {
-      setTimeout(()=>{}, 1000);
-    }
     this.busyEmitter.next(true);
     let projects: Array<FullProject> = new Array<FullProject>();
     this.getProjectsList().subscribe(projectReturnedList => {
@@ -323,12 +325,17 @@ export class VstsDataService {
   }
 
   getProjects(): Observable<VstsProjectList> {
-    return this.launchGetForUrl(this.getProjectsApiUrl())
-      .map((resp) => {
-        let newValue = new VstsProjectList(resp.text());
-        this.emitter.next(newValue);
-        return newValue;
-      });
+    let url = this.getProjectsApiUrl();
+    if (url) {
+      return this.launchGetForUrl(url)
+        .map((resp) => {
+          let newValue = new VstsProjectList(resp.text());
+          this.emitter.next(newValue);
+          return newValue;
+        });
+    } else {
+      return new Observable<VstsProjectList>(e => e.next(new VstsProjectList("")));
+    }
   }
 
   getBuildDefinitionsForProject(project: VstsProject): Observable<VstsBuildDefinition[]> {
@@ -380,7 +387,12 @@ export class VstsDataService {
 
   getProjectsApiUrl(): string {
     this.setProfileAndHeaders();
-    return this.profile.url + "/defaultcollection/_apis/projects?api-version=2.0";
+    if (this.profile) {
+      return this.profile.url + "/defaultcollection/_apis/projects?api-version=2.0";
+    } else {
+      return null;
+    }
+
   }
 
   getProjectApisUrl(project: VstsProject): string {
