@@ -1,13 +1,18 @@
+.card_header {
+  font-weight: bold;
+  color:#084B8A;
+  margin: -15px 0px 5px 0px;
+}
 
 md-card {
   color: rgba(0,0,0,0.87);
   background-color: white;
-  margin: 10px;
+  margin: 8px;
   width: 630px;
 }
 
 table tr td {
-    text-align: center;
+    text-align: justify;
     font-size: 10pt;
     height: 20px;
     margin: 0px;

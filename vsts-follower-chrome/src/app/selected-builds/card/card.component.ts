@@ -8,11 +8,13 @@ class QualityIndicator {
   public name: string;
   public value: string;
   public color: string;
+  public type: string;
 
-  constructor(name?: string, value?: string, color?: string) {
+  constructor(name?: string, value?: string, color?: string, type?: string) {
     this.name = name;
     this.value = value;
     this.color = color;
+    this.type = type;
   }
 }
 
@@ -40,7 +42,7 @@ export class CardComponent implements OnInit, OnChanges {
   }
 
   setBuildIndicators() {
-    this.indicators  = new Array<QualityIndicator>();
+    //this.indicators  = new Array<QualityIndicator>(); //<- ré-instancié quand l'un des appel arrive après l'autre
     let haveTests = false;
     let haveCoverages = false;
     if (this.measures) {
@@ -58,12 +60,12 @@ export class CardComponent implements OnInit, OnChanges {
             new QualityIndicator(
               "Total Tests",
               measure.value,
-              "gainsboro"
+              "#6E6E6E"
             ));
           haveTests = true;
         } else if (measure.metric === "coverage") {
           let cov = +measure.value;
-          let color = "gainsboro";
+          let color = "#6E6E6E";
           if (cov >= 99) {
             color = "limegreen";
           } else if (cov >= 80) {
@@ -71,15 +73,16 @@ export class CardComponent implements OnInit, OnChanges {
           } else if (cov >= 65) {
             color = "khaki";
           } else if (cov >= 50) {
-            color = "goldenrod";
+            color = "#DF7401";
           } else {
             color = "crimson";
           }
           this.indicators.push(
             new QualityIndicator(
               "Coverage",
-              cov.toString() + " %",
-              color
+              cov.toString(),
+              color,
+              "percent"
             ));
           haveCoverages = true;
         } else {
@@ -99,7 +102,7 @@ export class CardComponent implements OnInit, OnChanges {
           new QualityIndicator(
             "Total Tests",
             this.build.testResult.totalTests.toString(),
-            "gainsboro"
+            "#6E6E6E"
           ));
         if (this.build.testResult.failedTests > 0) {
           this.indicators.push(
@@ -114,7 +117,7 @@ export class CardComponent implements OnInit, OnChanges {
             new QualityIndicator(
               "Ignored Tests",
               this.build.testResult.ignoredTests.toString(),
-              "goldenrod"
+              "#DF7401"
             ));
         }
       }
@@ -129,15 +132,22 @@ export class CardComponent implements OnInit, OnChanges {
           } else if (cov >= 65) {
             color = "khaki";
           } else if (cov >= 50) {
-            color = "goldenrod";
+            color = "#DF7401";
           } else {
             color = "crimson";
           }
           this.indicators.push(
+            // new QualityIndicator(
+            //   stat.label + " Cover",
+            //   cov.toString(),
+            //   color
+            // ));
+            
             new QualityIndicator(
               stat.label + " Cover",
-              cov.toString() + " %",
-              color
+              cov.toString(),
+              color,
+              "percent"
             ));
         });
       }
@@ -145,24 +155,24 @@ export class CardComponent implements OnInit, OnChanges {
   }
 
   getDefaultColor() {
-    return "gainsboro";
+    return "#6E6E6E";    
   }
 
   getBuildColor(build: VstsBuild): string {
-    let color: string = "gainsboro";
+    let color: string = "#6E6E6E";
     if (build) {
       switch (build.result) {
         case "succeeded":
-          color = "limegreen";
+          color = "#088A08";
           break;
         case "partiallySucceeded":
-          color = "goldenrod";
+          color = "#DF7401";
           break;
         case "failed":
-          color = "crimson";
+          color = "#B40404";
           break;
         default:
-          color = "gainsboro";
+          color = "#6E6E6E";
           break;
       }
     }
@@ -182,13 +192,13 @@ export class CardComponent implements OnInit, OnChanges {
         color = "khaki";
         break;
       case "D":
-        color = "goldenrod";
+        color = "#DF7401";
         break;
       case "E":
         color = "crimson";
         break;
       default:
-        color = "gainsboro";
+        color = "#6E6E6E";
         break;
     }
     return color;
