@@ -20,6 +20,7 @@ import { ProfileService } from '../profile/profile.service';
 import { Subscriber } from 'rxjs/Subscriber';
 
 const SonarQubeScannerMsBuildEnd = "6d01813a-9589-4b15-8491-8164aeb38055";
+const SonarQubeScannerCli = "9f57024b-31f9-4e58-9e39-a47ccc098f03";
 
 @Injectable()
 export class VstsDataService {
@@ -92,7 +93,7 @@ export class VstsDataService {
 
   getLogUrlForSonar(records): string {
     let filteredRecords = records.filter(record => {
-      return (record.task && record.task.id === SonarQubeScannerMsBuildEnd && record.log);
+      return (record.task && this.isSonarTask(record.task.id) && record.log);
     });
     if (filteredRecords && filteredRecords.length > 0) {
       return filteredRecords[0].log.location;
@@ -101,9 +102,13 @@ export class VstsDataService {
     }
   }
 
+  isSonarTask(taskId: string) {
+    return (taskId === SonarQubeScannerMsBuildEnd || taskId === SonarQubeScannerCli)
+  }
+  
   getLog(logs) {
     let filteredLines = logs.value.filter(record => {
-      return (record.task && record.task.id === SonarQubeScannerMsBuildEnd && record.state === "completed" && record.log && record.log.length > 0);
+      return (record.task && this.isSonarTask(record.task.id)  && record.state === "completed" && record.log && record.log.length > 0);
     });
 
     if (filteredLines && filteredLines.length > 0) {
@@ -167,7 +172,7 @@ export class VstsDataService {
   getPlan(build: MainBuildsInfo, planId: string) {
     return this.launchGetForUrl(this.getPlanUrl(build, planId)).map(buildResp => {
       let timelines = JSON.parse(buildResp.text()).value;
-      if (timelines.length > 1) {
+      if (timelines.length > 0) {
         return timelines[0].id;
       } else {
         return null;
