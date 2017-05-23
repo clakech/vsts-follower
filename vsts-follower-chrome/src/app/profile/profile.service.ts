@@ -24,6 +24,12 @@ export class ProfileService {
   }
 
   public setProfile(profile: ProfileType = "", data: ProfileCredentials) {
+    if (profile === "sonarqube" && data.url.slice(-1) !== "/") {
+      data.url = data.url + "/";
+    }
+    if (profile === "vsts" && data.url.slice(-1) === "/") {
+      data.url = data.url.substring(0, data.url.length - 1);
+    }
     localStorage.setItem(this.getStorageName(profile), JSON.stringify(data));
     return (this.getProfile(profile) != null);
   }
