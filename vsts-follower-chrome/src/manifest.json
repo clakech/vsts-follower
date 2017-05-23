@@ -3,7 +3,7 @@
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "name": "ALM Follower",
   "description": "Follow your projects on VSTS with SonarQube",
-  "version": "0.9",
+  "version": "1.0",
   "icons": {
     "128": "128.png"
   },
