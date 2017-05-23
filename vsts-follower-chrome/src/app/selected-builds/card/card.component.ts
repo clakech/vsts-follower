@@ -35,33 +35,37 @@ export class CardComponent implements OnInit, OnChanges {
     this.setBuildIndicators();
   }
 
-  ngOnChanges(changes: {[propName: string]: SimpleChange}) {
+  ngOnChanges(changes: { [propName: string]: SimpleChange }) {
     if (changes.measures && changes.measures.currentValue && changes.measures.currentValue.length > 0) {
       this.setBuildIndicators();
     }
   }
 
   setBuildIndicators() {
-    //this.indicators  = new Array<QualityIndicator>(); //<- ré-instancié quand l'un des appel arrive après l'autre
+    let indicators  = new Array<QualityIndicator>(); //<- ré-instancié quand l'un des appel arrive après l'autre
     let haveTests = false;
     let haveCoverages = false;
     if (this.measures) {
       this.measures.forEach(measure => {
-        if (measure.metric === "test_errors" && measure.value !== "0") {
-          this.indicators.push(
-            new QualityIndicator(
-              "Failed Tests",
-              measure.value,
-              "crimson"
-            ));
+        if (measure.metric === "test_errors") {
+          if (measure.value !== "0") {
+            indicators.push(
+              new QualityIndicator(
+                "Tests Failed",
+                measure.value,
+                "crimson"
+              ));
+          }
           haveTests = true;
-        } else if (measure.metric === "tests" && measure.value !== "0") {
-          this.indicators.push(
+        } else if (measure.metric === "tests") {
+          if (measure.value !== "0") {
+          indicators.push(
             new QualityIndicator(
               "Total Tests",
               measure.value,
               "#6E6E6E"
             ));
+          }
           haveTests = true;
         } else if (measure.metric === "coverage") {
           let cov = +measure.value;
@@ -77,7 +81,7 @@ export class CardComponent implements OnInit, OnChanges {
           } else {
             color = "crimson";
           }
-          this.indicators.push(
+          indicators.push(
             new QualityIndicator(
               "Coverage",
               cov.toString(),
@@ -86,7 +90,7 @@ export class CardComponent implements OnInit, OnChanges {
             ));
           haveCoverages = true;
         } else {
-          this.indicators.push(
+          indicators.push(
             <QualityIndicator>{
               name: measure.metric.replace("_", " "),
               value: measure.value,
@@ -98,24 +102,24 @@ export class CardComponent implements OnInit, OnChanges {
     }
     if (this.build.testResult && this.build.testResult.totalTests > 0) {
       if (!haveTests) {
-        this.indicators.push(
+        indicators.push(
           new QualityIndicator(
             "Total Tests",
             this.build.testResult.totalTests.toString(),
             "#6E6E6E"
           ));
         if (this.build.testResult.failedTests > 0) {
-          this.indicators.push(
+          indicators.push(
             new QualityIndicator(
-              "Failed Tests",
+              "Tests Failed",
               this.build.testResult.failedTests.toString(),
               "crimson"
             ));
         }
         if (this.build.testResult.ignoredTests > 0) {
-          this.indicators.push(
+          indicators.push(
             new QualityIndicator(
-              "Ignored Tests",
+              "Tests Ignored",
               this.build.testResult.ignoredTests.toString(),
               "#DF7401"
             ));
@@ -136,15 +140,9 @@ export class CardComponent implements OnInit, OnChanges {
           } else {
             color = "crimson";
           }
-          this.indicators.push(
-            // new QualityIndicator(
-            //   stat.label + " Cover",
-            //   cov.toString(),
-            //   color
-            // ));
-            
+          indicators.push(
             new QualityIndicator(
-              stat.label + " Cover",
+              "Cover (" + stat.label + ")",
               cov.toString(),
               color,
               "percent"
@@ -152,10 +150,11 @@ export class CardComponent implements OnInit, OnChanges {
         });
       }
     }
+    this.indicators = indicators.sort((prev, next) => prev.name.localeCompare(next.name));
   }
 
   getDefaultColor() {
-    return "#6E6E6E";    
+    return "#6E6E6E";
   }
 
   getBuildColor(build: VstsBuild): string {
@@ -202,37 +201,6 @@ export class CardComponent implements OnInit, OnChanges {
         break;
     }
     return color;
-  }
-
-  setSonarNullInformations() {
-    this.indicators.push(
-      <QualityIndicator>{
-        name: "Reliability",
-        value: "-",
-        color: this.getColorByNote("-")
-      }
-    );
-    this.indicators.push(
-      <QualityIndicator>{
-        name: "Security",
-        value: "-",
-        color: this.getColorByNote("-")
-      }
-    );
-    this.indicators.push(
-      <QualityIndicator>{
-        name: "Maintainability",
-        value: "-",
-        color: this.getColorByNote("-")
-      }
-    );
-    this.indicators.push(
-      <QualityIndicator>{
-        name: "Coverage",
-        value: "-",
-        color: this.getColorByNote("F")
-      }
-    );
   }
 
 }
