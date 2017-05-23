@@ -1,0 +1,11 @@
+<md-tab-group [dynamicHeight]="dynh" flex>
+  <!--<md-tab *ngFor="let project of projects" [label]="project.project.name">
+    <follow-vsts-project [project]="project"></follow-vsts-project>
+  </md-tab>-->
+  <md-tab label="Selection">
+    <follow-list></follow-list>
+  </md-tab>
+  <md-tab label="All builds" style="overflow: hidden">
+    <follow-vsts-project [projects]="projects"></follow-vsts-project>
+  </md-tab>
+</md-tab-group>

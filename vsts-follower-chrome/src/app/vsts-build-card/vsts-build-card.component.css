@@ -1,0 +1,27 @@
+
+md-card {
+  color: rgba(0,0,0,0.87);
+  background-color: white;
+  margin: 10px;
+  width: 630px;
+}
+
+table tr td {
+    text-align: center;
+    font-size: 10pt;
+    height: 20px;
+    margin: 0px;
+    padding: 0px;
+    line-height: 0pt;
+    vertical-align: bottom;
+}
+
+a2 {
+  line-height: -4pt;
+}
+
+follow-quality-indicator {
+  margin: 0px;
+  padding: 0px;
+  align-content: center;
+}
