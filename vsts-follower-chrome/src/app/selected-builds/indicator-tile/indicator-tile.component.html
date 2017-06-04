@@ -12,13 +12,13 @@
   <div *ngIf="indicatorType != 'percent'">
     <div class="indicator_title">{{ indicatorName }}</div>
     <div class="indicator_value" [style.color]="indicatorColor">
-        <span>{{ indicatorValue }}</span>      
+        <span>{{ indicatorValue }}</span><span *ngIf="historyDiff" [style.color]="historyColor">&nbsp; {{ historyDiff }}</span>
     </div>
   </div>
   <div *ngIf="indicatorType == 'percent'">
     <div class="indicator_title">{{ indicatorName }}</div>
     <div class="c100 small center" [ngClass]="getPercentClass(indicatorValue)">
-        <span>{{ indicatorValue }} %</span>
+        <span>{{ indicatorValue }} %</span><span *ngIf="historyDiff" [style.color]="historyColor">&nbsp; {{ historyDiff }}</span>
         <div class="slice">
             <div class="bar"></div>
             <div class="fill"></div>

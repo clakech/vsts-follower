@@ -10,6 +10,9 @@ export class IndicatorTileComponent  implements OnInit {
   @Input() indicatorValue: string;
   @Input() indicatorColor: string;
   @Input() indicatorType: string;
+
+  @Input() historyDiff: string;
+  @Input() historyColor: string;
   constructor() {
    }
 

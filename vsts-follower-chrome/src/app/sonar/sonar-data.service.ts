@@ -53,8 +53,8 @@ export class SonarDataService {
             let measure = new Measure();
             measure.metric = item.metric;
             measure.value = item.value;
-            let splitted = measure.metric.split("_");
-            if (splitted[splitted.length - 1] === "rating") {
+            const splinted = measure.metric.split("_");
+            if (splinted[splinted.length - 1] === "rating") {
               switch (item.value) {
                 case "1.0":
                   measure.value = "A";
@@ -75,6 +75,23 @@ export class SonarDataService {
                   measure.value = "-";
                   break;
               }
+            }
+            if(item.periods) {
+              item.periods.forEach(period => {
+                if (period.value !== 0) {
+                  switch (period.index) {
+                    case 3:
+                      measure.period3Evolution = (period.value > 0) ? "+" : "-";
+                      break;
+                    case 2:
+                      measure.period2Evolution = (period.value > 0) ? "+" : "-";
+                      break;
+                    default:
+                      measure.period1Evolution = (period.value > 0) ? "+" : "-";
+                      break;
+                  }
+                }
+              });
             }
             measures.push(measure);
           });

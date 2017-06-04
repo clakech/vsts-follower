@@ -1,11 +1,12 @@
 <md-card *ngIf="build.definition">
-  <div class="card_header">{{ build.definition.project.name }}/{{ build.definition.name }} - 
+  <div class="card_header">{{ build.definition.project.name }}/{{ build.definition.name }} -
     <span *ngIf="build.last" [style.color]="getBuildColor(build.last)">{{ build.last.buildNumber }} ({{ build.last.reason }})</span>
     <span *ngIf="!build.last" [style.color]="getDefaultColor()">No build</span>
   </div>
   <md-grid-list cols="6" >
     <md-grid-tile *ngFor="let indicator of indicators">
-      <follow-indicator-tile [indicatorName]="indicator.name" [indicatorValue]="indicator.value" [indicatorColor]="indicator.color" [indicatorType]="indicator.type"></follow-indicator-tile>
+      <follow-indicator-tile *ngIf="!indicator.lastAnalysis" [indicatorName]="indicator.name" [indicatorValue]="indicator.value" [indicatorColor]="indicator.color" [indicatorType]="indicator.type"></follow-indicator-tile>
+      <follow-indicator-tile *ngIf="indicator.lastAnalysis" [indicatorName]="indicator.name" [indicatorValue]="indicator.value" [indicatorColor]="indicator.color" [indicatorType]="indicator.type" [historyDiff]="indicator.lastAnalysis.diff" [historyColor]="indicator.lastAnalysis.color"></follow-indicator-tile>
     </md-grid-tile>
   </md-grid-list>
 </md-card>
