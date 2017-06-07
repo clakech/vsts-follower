@@ -9,12 +9,28 @@ class QualityIndicator {
   public value: string;
   public color: string;
   public type: string;
+  public lastAnalysis: QualityIndicatorHistory;
+  public lastVersion: QualityIndicatorHistory;
+  public sevenDays: QualityIndicatorHistory;
 
-  constructor(name?: string, value?: string, color?: string, type?: string) {
+  constructor(name?: string, value?: string, color?: string, lastAnalysis?: QualityIndicatorHistory, lastVersion?: QualityIndicatorHistory, sevenDays?: QualityIndicatorHistory, type?: string) {
     this.name = name;
     this.value = value;
     this.color = color;
     this.type = type;
+    this.lastAnalysis = lastAnalysis;
+    this.lastVersion = lastVersion;
+    this.sevenDays = sevenDays;
+  }
+}
+
+class QualityIndicatorHistory {
+  public diff: string;
+  public color: string;
+
+  constructor(diff?: string, color?: string) {
+    this.diff = diff;
+    this.color = color;
   }
 }
 
@@ -53,7 +69,19 @@ export class CardComponent implements OnInit, OnChanges {
               new QualityIndicator(
                 "Tests Failed",
                 measure.value,
-                "crimson"
+                "crimson",
+                measure.period2Evolution ? new QualityIndicatorHistory(
+                  measure.period2Evolution,
+                  (measure.period2Evolution === "+") ? "crimson" : "limegreen"
+                ) : null,
+                measure.period1Evolution ? new QualityIndicatorHistory(
+                  measure.period1Evolution,
+                  (measure.period1Evolution === "+") ? "crimson" : "limegreen"
+                ) : null,
+                measure.period3Evolution ? new QualityIndicatorHistory(
+                  measure.period3Evolution,
+                  (measure.period3Evolution === "+") ? "crimson" : "limegreen"
+                ) : null
               ));
           }
           haveTests = true;
@@ -63,7 +91,19 @@ export class CardComponent implements OnInit, OnChanges {
             new QualityIndicator(
               "Total Tests",
               measure.value,
-              "#6E6E6E"
+              "#6E6E6E",
+              measure.period2Evolution ? new QualityIndicatorHistory(
+                measure.period2Evolution,
+                (measure.period2Evolution === "+") ? "limegreen" : "crimson"
+              ) : null,
+              measure.period1Evolution ? new QualityIndicatorHistory(
+                measure.period1Evolution,
+                (measure.period1Evolution === "+") ? "limegreen" : "crimson"
+              ) : null,
+              measure.period3Evolution ? new QualityIndicatorHistory(
+                measure.period3Evolution,
+                (measure.period3Evolution === "+") ? "limegreen" : "crimson"
+              ) : null
             ));
           }
           haveTests = true;
@@ -86,6 +126,18 @@ export class CardComponent implements OnInit, OnChanges {
               "Coverage",
               cov.toString(),
               color,
+              measure.period2Evolution ? new QualityIndicatorHistory(
+                measure.period2Evolution,
+                (measure.period2Evolution === "+") ? "limegreen" : "crimson"
+              ) : null,
+              measure.period1Evolution ? new QualityIndicatorHistory(
+                measure.period1Evolution,
+                (measure.period1Evolution === "+") ? "limegreen" : "crimson"
+              ) : null,
+              measure.period3Evolution ? new QualityIndicatorHistory(
+                measure.period3Evolution,
+                (measure.period3Evolution === "+") ? "limegreen" : "crimson"
+              ) : null,
               "percent"
             ));
           haveCoverages = true;
@@ -94,7 +146,19 @@ export class CardComponent implements OnInit, OnChanges {
             <QualityIndicator>{
               name: measure.metric.replace("_", " "),
               value: measure.value,
-              color: this.getColorByNote(measure.value)
+              color: this.getColorByNote(measure.value),
+              lastAnalysis: measure.period2Evolution ? new QualityIndicatorHistory(
+                measure.period2Evolution,
+                (measure.period2Evolution === "+") ? "crimson" : "limegreen"
+              ) : null,
+              lastVersion: measure.period1Evolution ? new QualityIndicatorHistory(
+                measure.period1Evolution,
+                (measure.period1Evolution === "+") ? "crimson" : "limegreen"
+              ) : null,
+              sevenDays: measure.period3Evolution ? new QualityIndicatorHistory(
+                measure.period3Evolution,
+                (measure.period3Evolution === "+") ? "crimson" : "limegreen"
+              ) : null
             }
           );
         }
@@ -145,6 +209,7 @@ export class CardComponent implements OnInit, OnChanges {
               "Cover (" + stat.label + ")",
               cov.toString(),
               color,
+              null,null,null,
               "percent"
             ));
         });
