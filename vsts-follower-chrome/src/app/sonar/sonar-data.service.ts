@@ -80,13 +80,13 @@ export class SonarDataService {
               item.periods.forEach(period => {
                 switch (period.index) {
                   case 3:
-                    measure.period3Evolution = this.setEvolution(period.value);//(period.value > 0) ? "+" : "-";
+                    measure.period3Evolution = this.setEvolution(period.value);
                     break;
                   case 2:
-                    measure.period2Evolution = this.setEvolution(period.value);;
+                    measure.period2Evolution = this.setEvolution(period.value);
                     break;
                   default:
-                    measure.period1Evolution = this.setEvolution(period.value);;
+                    measure.period1Evolution = this.setEvolution(period.value);
                     break;
                 }
               });
@@ -97,12 +97,12 @@ export class SonarDataService {
         return measures.sort((a, b) => a.metric.localeCompare(b.metric));
       });
   }
-  setEvolution(value: any): string {
+  setEvolution(value: number): string {
     let val: string = null;
-    if (<number>value > 0) {
+    if (value > 0) {
       val = "+";
     }
-    if (<number>value < 0) {
+    if (value < 0) {
       val = "-";
     }
     return val;
