@@ -76,20 +76,18 @@ export class SonarDataService {
                   break;
               }
             }
-            if(item.periods) {
+            if (item.periods) {
               item.periods.forEach(period => {
-                if (period.value !== 0) {
-                  switch (period.index) {
-                    case 3:
-                      measure.period3Evolution = (period.value > 0) ? "+" : "-";
-                      break;
-                    case 2:
-                      measure.period2Evolution = (period.value > 0) ? "+" : "-";
-                      break;
-                    default:
-                      measure.period1Evolution = (period.value > 0) ? "+" : "-";
-                      break;
-                  }
+                switch (period.index) {
+                  case 3:
+                    measure.period3Evolution = this.setEvolution(period.value);//(period.value > 0) ? "+" : "-";
+                    break;
+                  case 2:
+                    measure.period2Evolution = this.setEvolution(period.value);;
+                    break;
+                  default:
+                    measure.period1Evolution = this.setEvolution(period.value);;
+                    break;
                 }
               });
             }
@@ -99,5 +97,14 @@ export class SonarDataService {
         return measures.sort((a, b) => a.metric.localeCompare(b.metric));
       });
   }
-
+  setEvolution(value: any): string {
+    let val: string = null;
+    if (<number>value > 0) {
+      val = "+";
+    }
+    if (<number>value < 0) {
+      val = "-";
+    }
+    return val;
+  }
 }
