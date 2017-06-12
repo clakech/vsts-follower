@@ -34,12 +34,7 @@ export class SonarDataService {
   }
 
   launchGetForUrl(url: string): Observable<Response> {
-    return this.http.get(url, this.requestOptions)
-      /*.retryWhen(error => {
-        console.log(error);
-        return error.delay(500);
-      })
-      .timeout(6000)*/;
+    return this.http.get(url, this.requestOptions);
   }
 
   getIndicators(componentKey: string): Observable<Array<Measure>> {

@@ -1,28 +1,18 @@
-<!--<table style="width:100%" *ngIf="indicatorType != 'percent'">
-  <tr>
-    <td>{{ indicatorName }}</td>
-  </tr>
-  <tr>
-    <td>
-      <h2>{{ indicatorValue }}</h2>
-    </td>
-  </tr>
-</table>-->
 <div class="indicator_block">
   <div *ngIf="indicatorType != 'percent'">
     <div class="indicator_title">{{ indicatorName }}</div>
     <div class="indicator_value" [style.color]="indicatorColor">
-        <span>{{ indicatorValue }}</span><span *ngIf="historyDiff" [style.color]="historyColor">&nbsp; {{ historyDiff }}</span>
+      <span>{{ indicatorValue }}</span><span *ngIf="historyDiff" [style.color]="historyColor">&nbsp; {{ historyDiff }}</span>
     </div>
   </div>
   <div *ngIf="indicatorType == 'percent'">
     <div class="indicator_title">{{ indicatorName }}</div>
     <div class="c100 small center" [ngClass]="getPercentClass(indicatorValue)">
-        <span>{{ indicatorValue }} %<span *ngIf="historyDiff" [style.color]="historyColor">&nbsp; {{ historyDiff }}</span></span>
-        <div class="slice">
-            <div class="bar"></div>
-            <div class="fill"></div>
-        </div>
+      <span>{{ indicatorValue }} %<span *ngIf="historyDiff" [style.color]="historyColor">&nbsp; {{ historyDiff }}</span></span>
+      <div class="slice">
+        <div class="bar"></div>
+        <div class="fill"></div>
+      </div>
     </div>
   </div>
 </div>

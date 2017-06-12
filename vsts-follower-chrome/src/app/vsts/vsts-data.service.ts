@@ -61,12 +61,7 @@ export class VstsDataService {
   }
 
   launchGetForUrl(url: string): Observable<Response> {
-    return this.http.get(url, this.requestOptions)
-      /*.retryWhen(error => {
-        console.log(error);
-        return error.delay(500);
-      })
-      .timeout(6000)*/;
+    return this.http.get(url, this.requestOptions);
   }
 
   toogleSelection(build: MainBuildsInfo) {
@@ -314,7 +309,6 @@ export class VstsDataService {
     return this.getLastBuildsForDefinition(definition, 10).map(builds => {
       let newBuild = new MainBuildsInfo(definition);
       newBuild.last = builds.filter(build => {
-        //return build.reason === "schedule" || build.reason === "manual" || build.reason === "triggered" || build.re
         return build.reason !== "validateShelveset";
       }).sort((a, b) => b.startTime.getTime() - a.startTime.getTime())[0];
       return newBuild;
@@ -452,25 +446,7 @@ export class VstsDataService {
           testResult.passedTests = result.aggregatedResultsAnalysis.resultsByOutcome.NotExecuted.count;
         }
 
-        return testResult;/*
-
-        return this.launchGetForUrl(this.getCodeCoverageUrlForBuild(build))
-          .map(response => {
-            let coverageResult = JSON.parse(response.text());
-            testResult.build.url = coverageResult.build.url;
-            if (coverageResult.coverageData.length == 0) {
-              return testResult;
-            }
-            coverageResult.coverageData.forEach(coverage => {
-              let newCoverage = new Coverage();
-              newCoverage.label = coverage.label;
-              newCoverage.position = coverage.position;
-              newCoverage.covered = coverage.covered;
-              newCoverage.total = coverage.total;
-              testResult.coverageStats.push(newCoverage);
-            });
-            return testResult;
-          });*/
+        return testResult;
       });
   }
 
