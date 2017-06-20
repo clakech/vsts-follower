@@ -24,9 +24,9 @@ class MockService {
 
   public getVstsProfile(): ProfileCredentials {
     let result = new ProfileCredentials();
-    result.login = "benoit.a.fontaine@axa.fr";
-    result.password = "yc4d4cakkcarvdtojg6mcem7zqauqgeeflxiggb26feqvoakrs3q___";
-    result.url = "https://axafrance.visualstudio.com";
+    result.login = 'benoit.a.fontaine@axa.fr';
+    result.password = 'yc4d4cakkcarvdtojg6mcem7zqauqgeeflxiggb26feqvoakrs3q___';
+    result.url = 'https://axafrance.visualstudio.com';
     return result;
   }
 
@@ -38,7 +38,7 @@ class MockService {
 class MockVstsDataService {
   getProjects(): Observable<VstsProjectList> {
     return Observable.create(observer => {
-        observer.next(new VstsProjectList("{\"count\":1,\"value\":[]"));
+        observer.next(new VstsProjectList('{"count":1,"value":[]'));
     });
   }
 }
@@ -57,7 +57,7 @@ describe('AppComponent', () => {
         AppComponent
       ],
       providers: [
-        { provide: VstsDataService, useClass: MockVstsDataService }, 
+        { provide: VstsDataService, useClass: MockVstsDataService },
         { provide: ProfileService, useClass: MockService }
       ]
     }).compileComponents();

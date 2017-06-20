@@ -20,7 +20,7 @@ export class IndicatorTileComponent  implements OnInit {
   ngOnInit() {
   }
 
-  getPercentClass(value){
-    return "p"+value;
+  getPercentClass(value) {
+    return 'p' + value;
   }
 }

@@ -7,13 +7,11 @@ import { VstsDataService } from './vsts/vsts-data.service';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent implements OnInit { 
+export class AppComponent implements OnInit {
   title = 'Chrome Connector to ALM';
   isBusy = true;
 
-  constructor(public vstsDataService: VstsDataService) { 
-    
-  }
+  constructor(public vstsDataService: VstsDataService) { }
 
   ngOnInit() {
     this.vstsDataService.isBusy.subscribe(newValue => {

@@ -100,10 +100,10 @@ export class VstsDataService {
   isSonarTask(taskId: string) {
     return (taskId === SonarQubeScannerMsBuildEnd || taskId === SonarQubeScannerCli)
   }
-  
+
   getLog(logs) {
     let filteredLines = logs.value.filter(record => {
-      return (record.task && this.isSonarTask(record.task.id)  && record.state === "completed" && record.log && record.log.length > 0);
+      return (record.task && this.isSonarTask(record.task.id) && record.state === "completed" && record.log && record.log.length > 0);
     });
 
     if (filteredLines && filteredLines.length > 0) {
@@ -136,12 +136,16 @@ export class VstsDataService {
 
   getSonarKey(logUri: string): Observable<string> {
     return this.launchGetForUrl(logUri).map(result => {
-      let logs: Array<string> = JSON.parse(result.text()).value
-      let filteredLog = logs.filter(line => {
+      let logs: Array<string> = JSON.parse(result.text()).value;
+      let query = logs.filter(line => {
         let ln = "" + line;
         return ln.indexOf("ANALYSIS SUCCESSFUL, you can browse ") > -1;
-      })[0].split("/");
-      return filteredLog[filteredLog.length - 1];
+      });
+      if (query && query.length > 0) {
+        let filteredLog = query[0].split("/");
+        return filteredLog[filteredLog.length - 1];
+      } 
+      return null;
     });
   }
 

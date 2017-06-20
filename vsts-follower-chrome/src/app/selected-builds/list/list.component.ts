@@ -5,6 +5,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FullProject, MainBuildsInfo, VstsBuild, VstsBuildDefinition, VstsProject } from '../../vsts/vsts-project';
 import { SelectedBuild, SelectedBuildsService } from '../selected-builds.service';
 
+import { AlertsService } from '../../alerts/alerts.service';
 import { Measure } from '../../sonar/sonar-model';
 import { SonarDataService } from '../../sonar/sonar-data.service';
 import { VstsDataService } from '../../vsts/vsts-data.service';
@@ -18,19 +19,23 @@ export class ListComponent implements OnInit {
 
   public selectedBuilds: Array<MainBuildsInfoExtended> = new Array<MainBuildsInfoExtended>();
 
-  constructor(public selectedBuildService: SelectedBuildsService, public vstsDataService: VstsDataService, private sonarService: SonarDataService) { }
+  constructor(
+    public selectedBuildService: SelectedBuildsService,
+    public vstsDataService: VstsDataService,
+    private sonarService: SonarDataService,
+    private alerts: AlertsService) { }
 
   ngOnInit() {
     this.selectedBuildService.selectedBuilds.subscribe(builds => {
       if (builds && builds.length > 0) {
-        let projects = builds.map(build => {
-          let prj = new VstsProject();
+        const projects = builds.map(build => {
+          const prj = new VstsProject();
           prj.id = build.projectGuid;
           return new FullProject(prj);
         }).filter((v, i, a) => a.findIndex(r => v.project.id === r.project.id) === i);
         this.vstsDataService.getDefinitionsBatch(projects).subscribe(definitions => {
-          let allDefinitions: VstsBuildDefinition[] = [].concat(...definitions);
-          let selectedDefinitions = allDefinitions
+          const allDefinitions: VstsBuildDefinition[] = [].concat(...definitions);
+          const selectedDefinitions = allDefinitions
             .filter(definition => this.isDefinitionSelected(definition))
             .sort((a, b) => (a.project.name + a.name).localeCompare(b.project.name + b.name));
           this.vstsDataService.getBuildsForDefinitionGroup(selectedDefinitions).subscribe(buildInfos => {
@@ -45,7 +50,7 @@ export class ListComponent implements OnInit {
                     this.vstsDataService.getPlan(selectedBuild, build.last.planId).subscribe(recordId => {
                       if (recordId) {
                         this.vstsDataService.getRecords(selectedBuild, build.last.planId, recordId).subscribe(record => {
-                          let logUri = this.vstsDataService.getLogUrlForSonar(record);
+                          const logUri = this.vstsDataService.getLogUrlForSonar(record);
                           if (logUri) {
                             this.vstsDataService.getSonarKey(logUri).subscribe(result => {
                               selectedBuild.last.sonarKey = result;
@@ -68,7 +73,12 @@ export class ListComponent implements OnInit {
   }
 
   isDefinitionSelected(definition: VstsBuildDefinition) {
-    return (this.selectedBuildService.getSelectedBuilds().findIndex(selection => (selection.projectGuid === definition.project.id && selection.buildDefinitionId === definition.id)) !== -1);
+    return (
+      this.selectedBuildService
+          .getSelectedBuilds()
+        .findIndex(selection => (selection.projectGuid === definition.project.id && selection.buildDefinitionId === definition.id))
+      !== -1
+    );
   }
 }
 

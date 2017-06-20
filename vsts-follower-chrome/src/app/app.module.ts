@@ -2,6 +2,7 @@ import 'hammerjs';
 
 import { HttpModule, JsonpModule } from '@angular/http';
 
+import { AlertsModule } from './alerts/alerts.module';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
@@ -39,7 +40,8 @@ import { VstsProjectsComponent } from './vsts-projects/vsts-projects.component';
     ProfileModule,
     VstsModule,
     SelectedBuildsModule,
-    SonarModule
+    SonarModule,
+    AlertsModule
   ],
   bootstrap: [
     AppComponent
