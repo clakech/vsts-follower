@@ -44,6 +44,9 @@ export class SonarDataService {
 
   getIndicators(componentKey: string): Observable<Array<Measure>> {
     this.setProfileAndHeaders();
+    if (!componentKey) {
+      return Observable.throw("Missing componentKey");
+    }
     return this.launchGetForUrl(this.profile.url + "api/measures/component?metricKeys=tests,test_errors,coverage,bugs,vulnerabilities,code_smells,sqale_rating,reliability_rating,security_rating&componentKey=" + componentKey)
       .map((resp) => {
         let measures = new Array<Measure>();
