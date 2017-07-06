@@ -4,9 +4,8 @@ import { NgModule } from '@angular/core';
 import { VstsProjectsComponent } from './vsts-projects/vsts-projects.component';
 
 const routes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'projects', },
-  { path: 'projects', component: VstsProjectsComponent },
-  { path: '**', pathMatch: 'full', redirectTo: 'projects' },
+  { path: '', pathMatch: 'full', component: VstsProjectsComponent },
+  { path: '**', pathMatch: 'full', redirectTo: '' },
 ];
 
 @NgModule({
