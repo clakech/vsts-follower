@@ -141,12 +141,16 @@ export class VstsDataService {
 
   getSonarKey(logUri: string): Observable<string> {
     return this.launchGetForUrl(logUri).map(result => {
-      let logs: Array<string> = JSON.parse(result.text()).value
-      let filteredLog = logs.filter(line => {
+      let logs: Array<string> = JSON.parse(result.text()).value;
+      let filteredLogs = logs.filter(line => {
         let ln = "" + line;
         return ln.indexOf("ANALYSIS SUCCESSFUL, you can browse ") > -1;
-      })[0].split("/");
-      return filteredLog[filteredLog.length - 1];
+      });
+      if(filteredLogs.length > 0) {
+        const filteredLog = filteredLogs[0].split("/");
+        return filteredLog.pop();
+      }
+      return ""
     });
   }
 
@@ -217,12 +221,16 @@ export class VstsDataService {
         projects.push(new FullProject(project));
         emitter.next(projects);
       });
-      this.getDefinitionsBatch(projects).subscribe(definitions => {
-        emitter.next(projects);
-        this.getBuildsBatch(definitions).subscribe(buildGroups => {
-          this.supplyProjectsWithBuilds(projects, buildGroups);
+      projects.forEach(project => {
+        this.getDefinitions(project).subscribe(definitions => {
           emitter.next(projects);
-          this.busyEmitter.next(false);
+          definitions.forEach(definition => {
+            this.getBuildByDefinition(definition).subscribe(build => {
+              this.supplyProjectsWithBuild(projects, build);
+              emitter.next(projects);
+              this.busyEmitter.next(false);
+            });
+          });
         });
       });
     });
@@ -230,49 +238,31 @@ export class VstsDataService {
 
 
 
-  supplyProjectsWithBuilds(projects: Array<FullProject>, buildGroups: Array<MainBuildsInfo[]>) {
+  supplyProjectsWithBuild(projects: Array<FullProject>, build: MainBuildsInfo) {
     const selection = this.selectedBuildService.getSelectedBuilds();
     projects.forEach(project => {
-      buildGroups.forEach(buildArray => {
-        this.supplyProjectWithBuilds(project, buildArray, selection);
-      });
+      this.supplyProjectWithBuilds(project, build, selection);
     });
   }
 
-  supplyProjectWithBuilds(project: FullProject, buildArray: MainBuildsInfo[], selectedBuilds?: Array<SelectedBuild>) {
-    if (buildArray.length > 0 && buildArray[0].definition.project.id === project.project.id) {
-      this.addBuildsOnFullProject(project, buildArray.sort((a, b) => a.definition.name.localeCompare(b.definition.name)), selectedBuilds);
+  supplyProjectWithBuilds(project: FullProject, build: MainBuildsInfo, selectedBuilds?: Array<SelectedBuild>) {
+    if (build.definition.project.id === project.project.id) {
+      this.addBuildsOnFullProject(project, build, selectedBuilds);
     }
   }
 
-  addBuildsOnFullProject(project: FullProject, builds: MainBuildsInfo[], selectedBuilds?: Array<SelectedBuild>) {
-    project.builds = new Array<MainBuildsInfo>();
-    builds.forEach(build => {
-      if (selectedBuilds) {
-        const selectedIndex = selectedBuilds.findIndex(element => {
-          return (element.projectGuid === project.project.id && element.buildDefinitionId === build.definition.id);
-        });
+  addBuildsOnFullProject(project: FullProject, build: MainBuildsInfo, selectedBuilds?: Array<SelectedBuild>) {
+    if(!project.builds) {
+      project.builds = new Array<MainBuildsInfo>();
+    }
+    if (selectedBuilds) {
+      const selectedIndex = selectedBuilds.findIndex(element => {
+        return (element.projectGuid === project.project.id && element.buildDefinitionId === build.definition.id);
+      });
 
-        build.selected = (selectedIndex > -1);
-      }
-      project.builds.push(build);
-    })
-  }
-
-  getBuildsBatch(buildsDefinitions: VstsBuildDefinition[][]): Observable<Array<MainBuildsInfo[]>> {
-    let batch = new Array<Observable<MainBuildsInfo[]>>();
-    buildsDefinitions.forEach(definitionGroup => {
-      batch.push(this.getBuildsForDefinitionGroup(definitionGroup));
-    });
-    return Observable.forkJoin(batch);
-  }
-
-  getBuildsForDefinitionGroup(definitionGroup: VstsBuildDefinition[]): Observable<Array<MainBuildsInfo>> {
-    let batch = new Array<Observable<MainBuildsInfo>>();
-    definitionGroup.forEach(build => {
-      batch.push(this.getBuildByDefinition(build));
-    });
-    return Observable.forkJoin(batch);
+      build.selected = (selectedIndex > -1);
+    }
+    project.builds.push(build);
   }
 
   getTestResultsBatch(buildsGroups: MainBuildsInfo[][]): Observable<Array<MainBuildsInfo[]>> {
@@ -321,12 +311,8 @@ export class VstsDataService {
     });
   }
 
-  getDefinitionsBatch(projects: Array<FullProject>): Observable<Array<VstsBuildDefinition[]>> {
-    let batch = new Array<Observable<VstsBuildDefinition[]>>();
-    projects.forEach(project => {
-      batch.push(this.getBuildDefinitionsForProject(project.project));
-    });
-    return Observable.forkJoin(batch);
+  getDefinitions(project: FullProject): Observable<VstsBuildDefinition[]> {
+    return this.getBuildDefinitionsForProject(project.project);
   }
 
   getProjects(): Observable<VstsProjectList> {
