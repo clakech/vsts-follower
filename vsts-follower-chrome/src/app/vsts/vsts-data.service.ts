@@ -15,6 +15,7 @@ import { SelectedBuild, SelectedBuildsService } from '../selected-builds/selecte
 
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/Observable';
+import 'rxjs/add/observable/forkJoin';
 import { ProfileCredentials } from '../profile/profile-credentials';
 import { ProfileService } from '../profile/profile.service';
 import { Subscriber } from 'rxjs/Subscriber';
