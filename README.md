@@ -26,11 +26,12 @@ It contains the selected builds and displays their details (build / sonar indica
 # Contributing
 ## Prerequisites
 
-[Node.js](http://nodejs.org/) must be installed.
+[Node.js](http://nodejs.org/) must be installed with npm.
+* Prerequisites `npm install -g @angular/cli` will install globally what you need for development.
 
 ## Installation
 
-* Running `npm install` will install everything you need for development.
+* Running `npm install` will install what you need for local development.
 
 ## Running Tests
 
