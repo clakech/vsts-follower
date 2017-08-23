@@ -21,6 +21,6 @@ export class IndicatorTileComponent  implements OnInit {
   }
 
   getPercentClass(value){
-    return "p"+value;
+    return "p"+Math.round(Number(value));
   }
 }
